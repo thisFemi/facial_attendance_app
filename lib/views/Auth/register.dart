@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../utils/colors.dart';
+import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_form_field.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -269,9 +270,14 @@ class RegisterScreenState extends State<RegisterScreen> {
                                       hint: 'Confirm Password',
                                       icon: Icons.lock_open,
                                       textInputType: TextInputType.text,
-                                      validation: (value) => FormValidation
-                                          .retypePasswordValidation(
-                                              value, _password.text),
+                                      validation: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "password can't be empty";
+                                        } else if (value != _password.text) {
+                                          return "passwords not mathed";
+                                        }
+                                        return null;
+                                      },
                                       obscureText: true),
                                 ),
                                 const SizedBox(
@@ -286,9 +292,9 @@ class RegisterScreenState extends State<RegisterScreen> {
                                         height: 20.0,
                                         width: 20.0,
                                         child: Checkbox(
-                                          checkColor: color3,
-                                          fillColor:
-                                              MaterialStateProperty.all(color7),
+                                          checkColor: AppColors.black,
+                                          fillColor: MaterialStateProperty.all(
+                                              AppColors.grey),
                                           shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(3)),
@@ -308,7 +314,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                                           child: Text(
                                             'By signing up I have agreed to the Terms & Conditions and Privacy Policy',
                                             style: TextStyle(
-                                                color: color8,
+                                                color: AppColors.lightGrey,
                                                 fontWeight: FontWeight.w500),
                                           ),
                                         ),
@@ -321,10 +327,10 @@ class RegisterScreenState extends State<RegisterScreen> {
                                       horizontal: 45.0, vertical: 20.0),
                                   child: CustomButton(
                                       buttonText: 'SignUp',
-                                      textColor: color6,
-                                      backgroundColor: color3,
+                                      textColor: AppColors.white,
+                                      backgroundColor: AppColors.black,
                                       isBorder: false,
-                                      borderColor: color6,
+                                      borderColor: AppColors.black,
                                       onclickFunction: () {
                                         FocusScope.of(context).unfocus();
                                         if (termsAndConditionCheck == true) {

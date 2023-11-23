@@ -1,5 +1,6 @@
 import 'package:attend_sense/utils/colors.dart';
 import 'package:attend_sense/views/Auth/authentication_screen.dart';
+import 'package:attend_sense/views/Auth/register.dart';
 import 'package:flutter/material.dart';
 
 import '../../helpers/routes.dart';
@@ -152,7 +153,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               borderColor: AppColors.black,
                               onclickFunction: () {
                                 Routes(context: context)
-                                    .navigate(const Login());
+                                    .navigate(const RegisterScreen());
                               }),
                         ),
                       ],
