@@ -99,7 +99,7 @@ class RegisterScreenState extends State<RegisterScreen> {
     final displaySize = MediaQuery.sizeOf(context);
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: AppColors.white,
+      backgroundColor: AppColors.offwhite,
       body: SafeArea(
           child: SizedBox(
               height: displaySize.height,
@@ -111,14 +111,14 @@ class RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Padding(
-                      //     padding: const EdgeInsets.symmetric(vertical: 20.0),
-                      //     child: CustomCustomBackButton(onclickFunction: () {
-                      //       Routes(context: context).back();
-                      //     })),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 20.0),
+                          child: IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: Icon(Icons.arrow_back))),
                       const Center(
                         child: Text(
-                          'Registration for Clearance Officers',
+                          'Registration',
                           style: TextStyle(
                               fontSize: 18.0, fontWeight: FontWeight.w500),
                         ),
@@ -127,6 +127,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                         padding: EdgeInsets.only(top: 20.0),
                         child: Form(
                             key: _formKey,
+                            autovalidateMode: AutovalidateMode.onUserInteraction,
                             child: Column(
                               children: [
                                 Padding(
@@ -139,6 +140,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                                       backgroundColor: AppColors.white,
                                       iconColor: AppColors.black,
                                       isIconAvailable: true,
+                                    
                                       onSaved: (value) {},
                                       hint: 'Full Name',
                                       icon: Icons.person,
@@ -176,7 +178,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                                                 width: 10,
                                               ),
                                               Text(
-                                                'Officer Type',
+                                                'User Type',
                                                 style: TextStyle(
                                                     color: AppColors.grey,
                                                     fontFamily:
@@ -314,7 +316,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                                           child: Text(
                                             'By signing up I have agreed to the Terms & Conditions and Privacy Policy',
                                             style: TextStyle(
-                                                color: AppColors.lightGrey,
+                                                color: AppColors.black,
                                                 fontWeight: FontWeight.w500),
                                           ),
                                         ),

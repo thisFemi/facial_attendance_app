@@ -70,10 +70,10 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final displaySize = MediaQuery.sizeOf(context);
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: AppColors.black,
-        systemNavigationBarColor: AppColors.black,
-        statusBarIconBrightness: Brightness.dark));
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    //     statusBarColor: AppColors.black,
+    //     systemNavigationBarColor: AppColors.black,
+    //     statusBarIconBrightness: Brightness.dark));
     return Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: AppColors.white,
@@ -111,12 +111,7 @@ class _LoginState extends State<Login> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20.0),
                             child: SizedBox(
-                              child: TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: const Icon(
-                                    Icons.arrow_back,
-                                    color: Colors.white,
-                                  )),
+                            
                             ),
                           ),
                           Align(

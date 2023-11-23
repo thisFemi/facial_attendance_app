@@ -8,6 +8,7 @@ import '../../utils/Common.dart';
 import '../../utils/images.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/slider.dart';
+import '../Auth/login.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -138,8 +139,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               isBorder: false,
                               borderColor: AppColors.white,
                               onclickFunction: () {
-                                // Routes(context: context)
-                                //     .navigate(StudentAuthScreen());
+                                Routes(context: context)
+                                    .navigate(Login());
                               }),
                         ),
                         Padding(
