@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1062434299033",
+    "project_id": "attend-sense-e5d58",
+    "storage_bucket": "attend-sense-e5d58.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1062434299033:android:3f4afe8bafd3e0030a6c08",
+        "android_client_info": {
+          "package_name": "com.example.attend_sense"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsT9JRaZyN7cFj1QV8dTN_RvEfPnKKL6o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

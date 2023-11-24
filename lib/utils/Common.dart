@@ -1,5 +1,7 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 
-//  Size displaySize=MediaQuery.sizeOf(context);
-
-
+class Screen {
+  static Size deviceSize(BuildContext context) {
+    return MediaQuery.sizeOf(context);
+  }
+}

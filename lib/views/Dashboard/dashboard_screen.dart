@@ -1,6 +1,8 @@
+import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:attend_sense/models/theme.dart';
 import 'package:attend_sense/views/CourseList/courselist_screen.dart';
 import 'package:attend_sense/views/Dashboard/home.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -28,42 +30,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ThemeMode currentThemeMode =
         Provider.of<ThemeModel>(context, listen: false).themeMode;
     return Scaffold(
-        body: SizedBox.expand(
-          child: PageView(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            },
-            children: [HomeScreen(), CourseListScreen(), SettingsScreen()],
-          ),
+      body: SizedBox.expand(
+        child: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          children: [
+            const HomeScreen(),
+            const CourseListScreen(),
+            const SettingsScreen(),
+            CourseListScreen(),
+          ],
         ),
-        bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            type: BottomNavigationBarType.fixed,
-            elevation: 20,
-            showUnselectedLabels: true,
-            unselectedItemColor: Colors.grey,
-            selectedItemColor: Colors.indigo[800],
-            unselectedLabelStyle: currentThemeMode == ThemeMode.light
-                ? lightTheme.textTheme.subtitle1
-                : darkTheme.textTheme.subtitle1,
-            selectedLabelStyle: currentThemeMode == ThemeMode.light
-                ? lightTheme.textTheme.subtitle1
-                : darkTheme.textTheme.subtitle1,
-            showSelectedLabels: true,
-            onTap: (index) {
-              setState(() => _currentIndex = index);
-              _pageController.jumpToPage(index);
-            },
-            items: [
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.home_filled), label: 'Home'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.school), label: 'Courses'),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.settings), label: 'Settings'),
-            ]));
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(
+          CupertinoIcons.person_crop_circle_badge_checkmark,
+          color: Colors.white,
+        ),
+        onPressed: () {},
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      bottomNavigationBar: AnimatedBottomNavigationBar.builder(
+        backgroundColor: Colors.black,
+        height: 70,
+        itemCount: iconList.length,
+        tabBuilder: (int index, bool isActive) {
+          return Icon(
+            iconList[index],
+            size: 24,
+            color: isActive ? Colors.green : Colors.white,
+          );
+        },
+        activeIndex: _currentIndex,
+        gapLocation: GapLocation.center,
+
+        notchSmoothness: NotchSmoothness.softEdge,
+
+        leftCornerRadius: 32,
+        rightCornerRadius: 32,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+            _pageController.jumpToPage(index);
+          });
+        }, //other params
+
+        //other params
+      ),
+    );
   }
+
+  final iconList = <IconData>[
+    CupertinoIcons.home,
+    Icons.receipt_long_outlined,
+    Icons.list_alt_rounded,
+    Icons.account_circle_rounded
+  ];
 }

@@ -1,24 +1,22 @@
 import 'package:attend_sense/models/theme.dart';
 import 'package:attend_sense/provider/theme.dart';
+import 'package:attend_sense/views/Dashboard/dashboard_screen.dart';
 import 'package:attend_sense/views/Onboarding/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'utils/colors.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // SystemChrome.setEnabledSystemUIOverlays([]);
-  // SystemChrome.setEnabledSystemUIMode(
-  //   SystemUiMode.edgeToEdge,
-  // );
+  await Firebase.initializeApp();
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor:AppColors.white,
-        systemNavigationBarColor: AppColors.white,
+    statusBarColor: AppColors.white,
+    systemNavigationBarColor: AppColors.white,
     statusBarBrightness: Brightness.dark,
     statusBarIconBrightness: Brightness.dark,
-
     systemNavigationBarDividerColor: Colors.white,
     systemNavigationBarIconBrightness: Brightness.dark,
   ));
@@ -32,7 +30,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor:AppColors.white,
+        statusBarColor: AppColors.white,
         systemNavigationBarColor: AppColors.white,
         statusBarIconBrightness: Brightness.light));
     return MultiProvider(
@@ -47,10 +45,9 @@ class MyApp extends StatelessWidget {
             title: 'AttendSense ',
             themeMode: themeModel.themeMode,
             theme: lightTheme,
-          
             darkTheme: darkTheme,
             debugShowCheckedModeBanner: false,
-            home: SplashScreen(),
+            home: DashboardScreen(),
           );
         }));
   }
