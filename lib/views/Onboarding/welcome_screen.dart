@@ -1,5 +1,4 @@
 import 'package:attend_sense/utils/colors.dart';
-import 'package:attend_sense/views/Auth/authentication_screen.dart';
 import 'package:attend_sense/views/Auth/register.dart';
 import 'package:flutter/material.dart';
 

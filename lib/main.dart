@@ -1,7 +1,5 @@
 import 'package:attend_sense/models/theme.dart';
 import 'package:attend_sense/provider/theme.dart';
-import 'package:attend_sense/views/Auth/authentication_screen.dart';
-import 'package:attend_sense/views/Dashboard/dashboard_screen.dart';
 import 'package:attend_sense/views/Onboarding/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
