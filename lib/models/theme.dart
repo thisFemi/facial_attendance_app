@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 final lightTheme = ThemeData(
   fontFamily: 'Raleway',
   brightness: Brightness.light,
-  primaryColor: Colors.indigo[700],
+  primaryColor:  Colors.black,
   backgroundColor: Colors.white,
   colorScheme: ColorScheme.fromSeed(
-      primary: Colors.indigo[700],
+      primary:  Colors.black,
       seedColor: Colors.green,
       secondary: Colors.green,
       surface: Colors.white,
@@ -34,9 +34,9 @@ final lightTheme = ThemeData(
 final darkTheme = ThemeData(
   fontFamily: 'Raleway',
   brightness: Brightness.dark,
-  primaryColor: const Color.fromARGB(1, 62, 71, 132),
+  primaryColor:  Colors.black,
   colorScheme: ColorScheme.fromSeed(
-      primary: Color.fromARGB(1, 62, 71, 132),
+      primary:  Colors.black,
       seedColor: Colors.green,
       secondary: Colors.deepPurple,
       surface: Colors.black,

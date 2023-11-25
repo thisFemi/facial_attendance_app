@@ -49,6 +49,7 @@ dependencies:
   timer_count_down: ^2.2.2
   slide_countdown: ^1.3.4
   animated_flip_counter: ^0.2.6
+  camera: ^0.10.5+5
 
 dev_dependencies:
   flutter_test:
