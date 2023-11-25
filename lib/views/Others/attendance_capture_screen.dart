@@ -112,7 +112,7 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
                     ),
                   ))
                 : Row(
-                  mainAxisAlignment:MainAxisAlignment.center
+                  mainAxisAlignment:MainAxisAlignment.center,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
