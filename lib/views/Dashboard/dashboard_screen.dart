@@ -1,7 +1,8 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:attend_sense/models/theme.dart';
-import 'package:attend_sense/views/CourseList/courselist_screen.dart';
+import 'package:attend_sense/views/CourseList/academicslist_screen.dart';
 import 'package:attend_sense/views/Dashboard/home.dart';
+import 'package:attend_sense/views/Others/upcoming_attendane_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +33,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       body: SizedBox.expand(
         child: PageView(
+          allowImplicitScrolling: false,
+          physics: NeverScrollableScrollPhysics(),
           controller: _pageController,
           onPageChanged: (index) {
             setState(() {
@@ -40,9 +43,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           },
           children: [
             const HomeScreen(),
-            const CourseListScreen(),
-            const SettingsScreen(),
-            CourseListScreen(),
+            AcademicsScreen(),
+            AcademicsScreen(),
+            SettingScreen(),
           ],
         ),
       ),
@@ -51,7 +54,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           CupertinoIcons.person_crop_circle_badge_checkmark,
           color: Colors.white,
         ),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (_) => UpcomingAttendanceScreen(
+                      // user: widget.user,
+                      )));
+        },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AnimatedBottomNavigationBar.builder(

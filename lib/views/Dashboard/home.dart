@@ -1,3 +1,5 @@
+import 'package:attend_sense/widgets/course_card.dart';
+import 'package:attend_sense/widgets/todo_card.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -125,36 +127,102 @@ class HomeScreen extends StatelessWidget {
                     backgroundColor: AppColors.lightGrey,
                     progressColor: AppColors.black,
                   ),
-                  const Spacer(),
-                  const Column(
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    height: double.infinity,
+                    width: 1,
+                    color: AppColors.lightGrey,
+                  ),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Overall Stats',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            child: Text(
+                              "Total Semesters : 4",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      const Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            child: Text(
+                              "Total Courses : 45",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Divider(),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Icon(
-                            Icons.circle,
-                            color: AppColors.algaeBrown,
-                            size: 18,
+                          Container(
+                            padding: const EdgeInsets.all(11),
+                            decoration: const BoxDecoration(
+                                color: AppColors.black, shape: BoxShape.circle),
                           ),
-                          Padding(
+                          const Padding(
                             padding: EdgeInsets.only(left: 5.0),
                             child: SizedBox(
                               child: Text(
-                                "Total Courses: 45",
+                                "Total Present : 20",
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
+                                    fontSize: 16, fontWeight: FontWeight.bold),
                               ),
                             ),
-                          )
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(11),
+                            decoration: const BoxDecoration(
+                                color: AppColors.lightGrey,
+                                shape: BoxShape.circle),
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.only(left: 5.0),
+                            child: SizedBox(
+                              child: Text(
+                                "Total Absent : 3",
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
                         ],
                       )
                     ],
@@ -162,7 +230,52 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-          )
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Expanded(
+              child: SingleChildScrollView(
+                  child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Frequent Courses ',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              ListView.builder(
+                  itemCount: 7,
+                  shrinkWrap: true,
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (ctx, index) {
+                    return CourseCard(
+                        progress: .30,
+                        showPecentage: true,
+                        onTap: () {},
+                        title: "CSC301");
+                  }),
+              SizedBox(
+                height: 20,
+              ),
+              Text(
+                'To-Do  ',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              SizedBox(
+                height: 80,
+             
+                child: ListView.builder(
+                    itemCount: 5,
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                    physics: BouncingScrollPhysics(),
+                    itemBuilder: (ctx, index) {
+                      return TodoCard();
+                    }),
+              ),
+              SizedBox(height: 50,)
+            ],
+          ))),
         ],
       ),
     );
