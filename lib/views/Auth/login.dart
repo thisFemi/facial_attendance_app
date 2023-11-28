@@ -9,6 +9,7 @@ import '../../helpers/routes.dart';
 import '../../utils/colors.dart';
 import '../../utils/images.dart';
 import '../../widgets/custom_text_form_field.dart';
+import '../Dashboard/dashboard_screen.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -55,6 +56,16 @@ class _LoginState extends State<Login> {
     setState(() {
       _isLoading = false;
     });
+
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+            builder: (_) => DashboardScreen(
+                // user: widget.user,
+                )),
+        (route) => false);
+
+    ;
   }
 
   void initState() {
@@ -110,9 +121,7 @@ class _LoginState extends State<Login> {
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20.0),
-                            child: SizedBox(
-                            
-                            ),
+                            child: SizedBox(),
                           ),
                           Align(
                             alignment: Alignment.center,

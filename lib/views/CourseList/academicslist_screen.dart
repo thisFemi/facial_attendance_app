@@ -27,30 +27,30 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
       color: AppColors.white,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Spacer(),
+    
             Title(
                 color: AppColors.black,
                 child: Text(
                   'Sessions',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 )),
-            Spacer(),
-            GestureDetector(
-              onTap: () {},
-              child: Container(
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    color: AppColors.black,
-                    borderRadius: BorderRadius.circular(5)),
-                child: Text(
-                  'Add',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.lightWhite),
-                ),
-              ),
-            ),
+         
+            // GestureDetector(
+            //   onTap: () {},
+            //   child: Container(
+            //     padding: EdgeInsets.all(5),
+            //     decoration: BoxDecoration(
+            //         color: AppColors.black,
+            //         borderRadius: BorderRadius.circular(5)),
+            //     child: Text(
+            //       'Add',
+            //       style: TextStyle(
+            //           fontWeight: FontWeight.bold, color: AppColors.lightWhite),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
         Expanded(

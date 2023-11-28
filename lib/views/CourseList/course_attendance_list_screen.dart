@@ -6,7 +6,7 @@ import '../../widgets/course_card.dart';
 import '../../widgets/custom_appBar.dart';
 
 class CourseAttendanceScreen extends StatelessWidget {
-   CourseAttendanceScreen({super.key});
+  CourseAttendanceScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class CourseAttendanceScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Total Course Attendance : 20",
+              "Total Course Attendance : ${attendance.length}",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(
@@ -31,14 +31,14 @@ class CourseAttendanceScreen extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: 20,
+                  itemCount: attendance.length,
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (ctx, index) {
                     return LecturerAttendanceCard(
-                      date: DateTime.now(),
-                      isPresent: false,
-                      lectuerName: "Ogunmepon",
+                      date: attendance[index].date,
+                      isPresent: attendance[index].isPresent,
+                      lectuerName: attendance[index].lectuerName,
                     );
                   }),
             ),
@@ -47,4 +47,42 @@ class CourseAttendanceScreen extends StatelessWidget {
       ),
     );
   }
+
+  final attendance = [
+    LecturerAttendanceCard(
+      date: DateTime.now(),
+      isPresent: false,
+      lectuerName: "Dr. Ogunmepon",
+    ),
+    LecturerAttendanceCard(
+      date: DateTime(2023, 9, 7, 17, 30),
+      isPresent: true,
+      lectuerName: "Dr. Ajayi",
+    ),
+    LecturerAttendanceCard(
+      date: DateTime(2023, 9, 8, 17, 30),
+      isPresent: false,
+      lectuerName: "Dr. Aranuwa",
+    ),
+    LecturerAttendanceCard(
+      date: DateTime(2023, 9, 1, 15, 30),
+      isPresent: false,
+      lectuerName: "Dr. Mrs Ogbeide",
+    ),
+    LecturerAttendanceCard(
+      date: DateTime(2023, 9, 2, 17, 30),
+      isPresent: true,
+      lectuerName: "Dr. Ajayi",
+    ),
+    LecturerAttendanceCard(
+      date: DateTime(2023, 9, 10, 17, 30),
+      isPresent: false,
+      lectuerName: "Dr. Mrs Aliyu",
+    ),
+    LecturerAttendanceCard(
+      date: DateTime(2023, 9, 8, 17, 30),
+      isPresent: false,
+      lectuerName: "Mr Ojo",
+    ),
+  ];
 }

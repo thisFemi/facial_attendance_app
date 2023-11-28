@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../provider/theme.dart';
+import '../../utils/colors.dart';
+import '../CourseList/course_registration_menu_screen.dart';
 import '../Settings/settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -44,7 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             const HomeScreen(),
             AcademicsScreen(),
-            AcademicsScreen(),
+            CourseRegistrationMenu(),
             SettingScreen(),
           ],
         ),
@@ -93,6 +95,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+
+
 
   final iconList = <IconData>[
     CupertinoIcons.home,

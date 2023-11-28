@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../utils/colors.dart';
+import '../utils/date_util.dart';
 
 class LecturerAttendanceCard extends StatelessWidget {
   LecturerAttendanceCard(
@@ -21,7 +22,7 @@ class LecturerAttendanceCard extends StatelessWidget {
       child: ListTile(
           title:
               Text(lectuerName, style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: Text(date.toString()),
+          subtitle: Text(DateUtil.formatDateTime(date)),
           trailing: Chip(
               backgroundColor: isPresent ? AppColors.green : AppColors.red,
               label: Text(

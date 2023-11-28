@@ -19,21 +19,21 @@ class CourseScreen extends StatelessWidget {
           context: context,
           showArrowBack: true,
           actions: [
-            GestureDetector(
-              onTap: () {},
-              child: Container(
-                margin: EdgeInsets.all(15),
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                    color: AppColors.black,
-                    borderRadius: BorderRadius.circular(5)),
-                child: Text(
-                  'Add',
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.lightWhite),
-                ),
-              ),
-            ),
+            // GestureDetector(
+            //   onTap: () {},
+            //   child: Container(
+            //     margin: EdgeInsets.all(15),
+            //     padding: EdgeInsets.all(5),
+            //     decoration: BoxDecoration(
+            //         color: AppColors.black,
+            //         borderRadius: BorderRadius.circular(5)),
+            //     child: Text(
+            //       'Add',
+            //       style: const TextStyle(
+            //           fontWeight: FontWeight.bold, color: AppColors.lightWhite),
+            //     ),
+            //   ),
+            // ),
           ],
           title: "Courses"),
       backgroundColor: AppColors.white,
@@ -60,7 +60,7 @@ class CourseScreen extends StatelessWidget {
                         showPecentage: true,
                         onTap: () {
                         
-                          if (isLecturer) {
+                          if (!isLecturer) {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
