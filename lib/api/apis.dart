@@ -8,6 +8,7 @@ class APIs {
   static FirebaseAuth auth = FirebaseAuth.instance;
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
   static FirebaseStorage storage = FirebaseStorage.instance;
+//auth
 
   static Future<void> login(String email, String password) async {
     try {
@@ -46,6 +47,8 @@ class APIs {
     } else {
       throw "User Details not found, kindly contact support.";
     }
+
+    //
   }
 
   static Future<void> register(String name, String email, String password,
@@ -79,5 +82,14 @@ class APIs {
       print(error);
       throw ('Registration failed, ${error}');
     }
+  }
+
+//courses
+  static  Stream<DocumentSnapshot<Map<String, dynamic>>> fetchAcademicData() {
+    return firestore
+        .collection(
+            'yourFirestoreCollection') // Replace with your actual collection
+        .doc('yourDocumentId') // Replace with your actual document ID
+        .snapshots();
   }
 }

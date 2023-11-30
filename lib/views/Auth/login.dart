@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
+import '../../api/apis.dart';
 import '../../helpers/routes.dart';
 import '../../utils/colors.dart';
+import '../../utils/dialogs.dart';
 import '../../utils/images.dart';
 import '../../widgets/custom_text_form_field.dart';
 import '../Dashboard/dashboard_screen.dart';
@@ -48,24 +50,25 @@ class _LoginState extends State<Login> {
       return;
     }
     _keyForm.currentState!.save();
-    setState(() {
-      _isLoading = true;
-    });
-
-    var key = 'email';
-    setState(() {
-      _isLoading = false;
-    });
-
-    Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-            builder: (_) => DashboardScreen(
-                // user: widget.user,
-                )),
-        (route) => false);
-
-    ;
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      await APIs.login(_username.text, _password.text).then((value) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => DashboardScreen()),
+            (route) => false);
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      Dialogs.showSnackbar(context, error.toString());
+    }
   }
 
   void initState() {
@@ -81,10 +84,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final displaySize = MediaQuery.sizeOf(context);
-    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    //     statusBarColor: AppColors.black,
-    //     systemNavigationBarColor: AppColors.black,
-    //     statusBarIconBrightness: Brightness.dark));
+ 
     return Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: AppColors.white,
@@ -171,7 +171,7 @@ class _LoginState extends State<Login> {
                                   backgroundColor: AppColors.white,
                                   iconColor: AppColors.black,
                                   isIconAvailable: true,
-                                  hint: 'Staff Id/Username',
+                                  hint: 'Email',
                                   icon: Icons.email_outlined,
                                   textInputType: TextInputType.text,
                                   onSaved: (value) {},

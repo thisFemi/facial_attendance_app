@@ -3,12 +3,13 @@ import 'package:attend_sense/views/CourseList/academicslist_screen.dart';
 import 'package:attend_sense/widgets/custom_appBar.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/attendance_models.dart';
 import '../../utils/Common.dart';
 import 'course_list_screen.dart';
 
 class SemestersScreen extends StatelessWidget {
-   SemestersScreen({super.key});
-
+  SemestersScreen({required this.session});
+  Session session;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,11 +24,12 @@ class SemestersScreen extends StatelessWidget {
         child: Column(
           children: [
             ListView.builder(
-                itemCount: semester.length,
+                itemCount: session.semesters.length,
                 shrinkWrap: true,
                 itemBuilder: (ctx, index) {
                   return SemesterBigCard(
-                    semester: semester[index].semester,
+                    semester: session.semesters[index],
+                    session: session,
                   );
                 })
           ],
@@ -35,16 +37,16 @@ class SemestersScreen extends StatelessWidget {
       ),
     );
   }
-
-  final semester = [SemesterBigCard(semester: 1), SemesterBigCard(semester: 2)];
 }
 
 class SemesterBigCard extends StatelessWidget {
-   SemesterBigCard({
+  SemesterBigCard({
     super.key,
     required this.semester,
+    required this.session,
   });
-  int semester;
+  Semester semester;
+  Session session;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +61,8 @@ class SemesterBigCard extends StatelessWidget {
               context,
               MaterialPageRoute(
                   builder: (_) => CourseScreen(
-                      // user: widget.user,
+                        session: session,
+                        semester: semester,
                       )));
         },
         child: Container(
@@ -80,7 +83,7 @@ class SemesterBigCard extends StatelessWidget {
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
               Text(
-                "2017/2018 Session",
+                "${session.sessionYear} Session",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ],

@@ -1,18 +1,26 @@
+import 'package:attend_sense/models/user_model.dart';
 import 'package:attend_sense/views/CourseList/course_attendance_list_screen.dart';
 import 'package:attend_sense/widgets/attendance_card.dart';
 import 'package:flutter/material.dart';
 
+import '../../api/apis.dart';
+import '../../models/attendance_models.dart';
 import '../../utils/colors.dart';
 import '../../widgets/course_card.dart';
 import '../../widgets/custom_appBar.dart';
 import 'students_attendance_list.dart';
 
 class CourseScreen extends StatelessWidget {
-   CourseScreen({super.key});
-  bool isLecturer = false;
+  CourseScreen({required this.semester, required this.session});
+
+  Session session;
+
+  Semester semester;
+
+  bool isLecturer = APIs.userInfo.userType == UserType.staff;
+
   @override
   Widget build(BuildContext context) {
-    
     return Scaffold(
       appBar: CustomAppBar(
           centerTitle: true,
@@ -43,40 +51,42 @@ class CourseScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Total Registred Courses : 20",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              "Total Registred Courses : ${semester.courses.length}",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            SizedBox(
+            const SizedBox(
               height: 10,
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: 20,
+                  itemCount: semester.courses.length,
                   shrinkWrap: true,
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   itemBuilder: (ctx, index) {
+                    final course = semester.courses[index];
                     return CourseCard(
-                        progress: .30,
+                        progress: course.calculateAttendancePercentage(),
                         showPecentage: true,
                         onTap: () {
-                        
                           if (!isLecturer) {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (_) => CourseAttendanceScreen(
-                                        // user: widget.user,
+                                          attendances: course.attendanceList,
                                         )));
                           } else {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (_) => StudentAttendanceList(
-                                        // user: widget.user,
+                                          course: course,
+                                          semester: semester,
+                                          session: session,
                                         )));
                           }
                         },
-                        title: "CSC301");
+                        title: course.courseId);
                   }),
             ),
           ],

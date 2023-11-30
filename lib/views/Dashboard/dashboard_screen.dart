@@ -36,7 +36,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: SizedBox.expand(
         child: PageView(
           allowImplicitScrolling: false,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           controller: _pageController,
           onPageChanged: (index) {
             setState(() {
@@ -46,13 +46,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             const HomeScreen(),
             AcademicsScreen(),
-            CourseRegistrationMenu(),
-            SettingScreen(),
+            const CourseRegistrationMenu(),
+            const SettingScreen(),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(
+        child: const Icon(
           CupertinoIcons.person_crop_circle_badge_checkmark,
           color: Colors.white,
         ),
@@ -60,7 +60,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (_) => UpcomingAttendanceScreen(
+                  builder: (_) => const UpcomingAttendanceScreen(
                       // user: widget.user,
                       )));
         },

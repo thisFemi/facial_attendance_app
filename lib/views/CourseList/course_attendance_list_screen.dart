@@ -1,12 +1,14 @@
 import 'package:attend_sense/widgets/attendance_card.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/attendance_models.dart';
 import '../../utils/colors.dart';
 import '../../widgets/course_card.dart';
 import '../../widgets/custom_appBar.dart';
 
 class CourseAttendanceScreen extends StatelessWidget {
-  CourseAttendanceScreen({super.key});
+  CourseAttendanceScreen({super.key, required this.attendances});
+  List<Attendance> attendances;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class CourseAttendanceScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Total Course Attendance : ${attendance.length}",
+              "Total Course Attendance : ${attendances.length}",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(
@@ -31,14 +33,15 @@ class CourseAttendanceScreen extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: attendance.length,
+                  itemCount: attendances.length,
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (ctx, index) {
+                    final attendance = attendances[index];
                     return LecturerAttendanceCard(
-                      date: attendance[index].date,
-                      isPresent: attendance[index].isPresent,
-                      lectuerName: attendance[index].lectuerName,
+                      date: attendance.startTime,
+                      isPresent: attendance.isPresent,
+                      lectuerName: attendance.lecturerName,
                     );
                   }),
             ),
@@ -47,42 +50,4 @@ class CourseAttendanceScreen extends StatelessWidget {
       ),
     );
   }
-
-  final attendance = [
-    LecturerAttendanceCard(
-      date: DateTime.now(),
-      isPresent: false,
-      lectuerName: "Dr. Ogunmepon",
-    ),
-    LecturerAttendanceCard(
-      date: DateTime(2023, 9, 7, 17, 30),
-      isPresent: true,
-      lectuerName: "Dr. Ajayi",
-    ),
-    LecturerAttendanceCard(
-      date: DateTime(2023, 9, 8, 17, 30),
-      isPresent: false,
-      lectuerName: "Dr. Aranuwa",
-    ),
-    LecturerAttendanceCard(
-      date: DateTime(2023, 9, 1, 15, 30),
-      isPresent: false,
-      lectuerName: "Dr. Mrs Ogbeide",
-    ),
-    LecturerAttendanceCard(
-      date: DateTime(2023, 9, 2, 17, 30),
-      isPresent: true,
-      lectuerName: "Dr. Ajayi",
-    ),
-    LecturerAttendanceCard(
-      date: DateTime(2023, 9, 10, 17, 30),
-      isPresent: false,
-      lectuerName: "Dr. Mrs Aliyu",
-    ),
-    LecturerAttendanceCard(
-      date: DateTime(2023, 9, 8, 17, 30),
-      isPresent: false,
-      lectuerName: "Mr Ojo",
-    ),
-  ];
 }

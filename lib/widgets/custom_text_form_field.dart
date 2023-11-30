@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../utils/colors.dart';
 
-
-
 class CustomTextFormField extends StatefulWidget {
   double height = 5.0;
   String hint;
@@ -81,49 +79,60 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          color: backgroundColor, borderRadius: BorderRadius.circular(5.0)),
-      padding: EdgeInsets.symmetric(vertical: height, horizontal: 10.0),
-      child: Row(
-        children: [
-          (isIconAvailable == true)
-              ? Icon(
-                  icon,
-                  color: iconColor,
-                )
-              : const SizedBox.shrink(),
-          Flexible(
-              child: TextFormField(
-            maxLength: maxLength,
-            readOnly: readOnly,
-            controller: controller,
-            obscureText: obscureText,
-            cursorColor: AppColors.black,
-            keyboardType: textInputType,
-            onSaved: onSaved,
-            validator: validation,
-            decoration: InputDecoration(
-                hintStyle: TextStyle(color: AppColors.grey),
-                label: Text(hint),
-                counterStyle: const TextStyle(
-                  height: double.minPositive,
-                ),
-                counterText: "",
-                labelStyle: TextStyle(
-                    color: AppColors.grey,
-                    fontFamily: 'Raleway-SemiBold',
-                    fontSize: 15.0),
-                border: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                errorBorder: InputBorder.none,
-                disabledBorder: InputBorder.none,
-                contentPadding: const EdgeInsets.only(
-                    left: 15, bottom: 11, top: 11, right: 15)),
-          ))
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+         Text(
+          hint,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 5),
+        TextFormField(
+          maxLength: maxLength,
+          readOnly: readOnly,
+          controller: controller,
+          obscureText: obscureText,
+          cursorColor: AppColors.black,
+          keyboardType: textInputType,
+          onSaved: onSaved,
+          validator: validation,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppColors.white,
+            hintStyle: TextStyle(color: AppColors.grey),
+            hintText: hint,
+            counterStyle: const TextStyle(
+              height: double.minPositive,
+            ),
+            counterText: "",
+            labelStyle: TextStyle(
+                color: AppColors.grey,
+                fontFamily: 'Raleway-SemiBold',
+                fontSize: 15.0),
+            border: const OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            enabledBorder: const OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            focusedBorder: const OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            errorBorder: const OutlineInputBorder(
+                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            contentPadding:
+                const EdgeInsets.only(left: 15, bottom: 11, top: 11, right: 15),
+            prefixIcon: (isIconAvailable == true)
+                ? Icon(
+                    icon,
+                    color: iconColor,
+                  )
+                : const SizedBox.shrink(),
+            disabledBorder: InputBorder.none,
+          ),
+        ),
+      ],
     );
   }
 }

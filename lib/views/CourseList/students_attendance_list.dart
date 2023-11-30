@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../../models/attendance_models.dart';
 import '../../utils/colors.dart';
 import '../../widgets/attendance_card.dart';
 import '../../widgets/custom_appBar.dart';
 
 class StudentAttendanceList extends StatelessWidget {
-  const StudentAttendanceList({super.key});
-
+  StudentAttendanceList(
+      {required this.course, required this.semester, required this.session});
+  Session session;
+  Course course;
+  Semester semester;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,8 +23,8 @@ class StudentAttendanceList extends StatelessWidget {
           GestureDetector(
             onTap: () {},
             child: Container(
-              margin: EdgeInsets.all(15),
-              padding: EdgeInsets.all(5),
+              margin: const EdgeInsets.all(15),
+              padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
                   color: AppColors.black,
                   borderRadius: BorderRadius.circular(5)),
@@ -39,7 +43,7 @@ class StudentAttendanceList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Total Student Present : 22",
+              "Course Attendance: ${course.attendanceList.length}",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             SizedBox(
@@ -47,20 +51,22 @@ class StudentAttendanceList extends StatelessWidget {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: 22,
+                  itemCount: course.attendanceList.length,
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (ctx, index) {
-                    return StudentAttendanceCard(
-                    matricNumber:"170404110",
-                    name:"Ogunmepon Sherifu"
+                    final attendance = course.attendanceList[index];
+                    return AttendanceCard(
+                      attendance: attendance,
+                      semester: semester,
+                      session: session,
+                      course: course,
                     );
                   }),
             ),
           ],
         ),
       ),
-     
     );
   }
 }

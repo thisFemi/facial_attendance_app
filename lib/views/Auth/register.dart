@@ -1,8 +1,12 @@
+import 'package:attend_sense/models/user_model.dart';
 import 'package:flutter/material.dart';
 
+import '../../api/apis.dart';
 import '../../utils/colors.dart';
+import '../../utils/dialogs.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_text_form_field.dart';
+import '../Dashboard/dashboard_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,33 +16,6 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class RegisterScreenState extends State<RegisterScreen> {
-  // Initial Selected Value
-  String? dropdownvalue;
-
-  // List of items in our dropdown menu
-  var items = <String>[
-    'Faculty',
-    'Department',
-    'Health-Center',
-    'Student Affairs',
-    'Bursary Office',
-    'Library Office',
-    'Chief-Auditor Office',
-    'Alumni Office',
-  ];
-
-  // createUser(OfficerModel officer) {
-  //   storeNewUser(officer, context) async {
-  //     await _db.collection('officers').add(officer.toJson()).then((e) {
-  //       print("successful");
-  //       Routes(context: context).navigateReplace(AdminDashoard());
-  //     }).catchError((error, stackTrace) {
-  //       _showErrorDialog("Somethig went wrong, Try again.");
-  //       print(error.toString());
-  //     });
-  //   }
-  // }
-
   bool termsAndConditionCheck = false;
 
   final TextEditingController _name = TextEditingController();
@@ -46,7 +23,9 @@ class RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _password = TextEditingController();
   final TextEditingController _confirm_password = TextEditingController();
 
+  TextEditingController _usertType = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  String selectedType = '';
 
   // final RegisterController _registerController = RegisterController();
 
@@ -63,14 +42,14 @@ class RegisterScreenState extends State<RegisterScreen> {
     showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-              title: Text('An Error Occured'),
+              title: const Text('An Error Occured'),
               content: Text(message),
               actions: [
                 ElevatedButton(
                     onPressed: () {
                       Navigator.of(ctx).pop();
                     },
-                    child: Text('Okay'))
+                    child: const Text('Okay'))
               ],
             ));
   }
@@ -79,6 +58,24 @@ class RegisterScreenState extends State<RegisterScreen> {
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) {
       return;
+    }
+    try {
+      await APIs.register(_name.text, _email.text, _password.text,
+              selectedType == "Student" ? UserType.student : UserType.staff)
+          .then((value) {
+        Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => DashboardScreen()),
+            (route) => false);
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      Dialogs.showSnackbar(context, error.toString());
     }
     _formKey.currentState!.save();
     setState(() {
@@ -115,7 +112,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 20.0),
                           child: IconButton(
                               onPressed: () => Navigator.pop(context),
-                              icon: Icon(Icons.arrow_back))),
+                              icon: const Icon(Icons.arrow_back))),
                       const Center(
                         child: Text(
                           'Registration',
@@ -124,86 +121,35 @@ class RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.only(top: 20.0),
+                        padding: const EdgeInsets.only(top: 20.0),
                         child: Form(
                             key: _formKey,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             child: Column(
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 20.0, vertical: 5.0),
                                   child: CustomTextFormField(
+                                      onSaved: (value) {},
                                       readOnly: false,
                                       height: 5.0,
                                       controller: _name,
                                       backgroundColor: AppColors.white,
                                       iconColor: AppColors.black,
                                       isIconAvailable: true,
-                                    
-                                      onSaved: (value) {},
-                                      hint: 'Full Name',
+                                      hint: 'Name',
                                       icon: Icons.person,
-                                      textInputType: TextInputType.text,
+                                      textInputType: TextInputType.emailAddress,
                                       validation: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return "Name can't be empty";
+                                          return "name can't be empty";
                                         }
+
                                         return null;
                                       },
                                       obscureText: false),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20.0, vertical: 5.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: AppColors.white,
-                                        borderRadius:
-                                            BorderRadius.circular(5.0)),
-                                    padding: EdgeInsets.symmetric(
-                                        vertical: 5.0, horizontal: 10.0),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        SizedBox(
-                                          child: Row(
-                                            children: [
-                                              SizedBox(
-                                                child: Icon(Icons
-                                                    .supervised_user_circle_rounded),
-                                              ),
-                                              SizedBox(
-                                                width: 10,
-                                              ),
-                                              Text(
-                                                'User Type',
-                                                style: TextStyle(
-                                                    color: AppColors.grey,
-                                                    fontFamily:
-                                                        'Raleway-SemiBold',
-                                                    fontSize: 15.0),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        // DropdownButton(
-                                        //     value: dropdownvalue,
-                                        //     icon: Icon(Icons.arrow_drop_down),
-                                        //     items: items.map((item) {
-                                        //       return DropdownMenuItem(
-                                        //           value: item,
-                                        //           child: Text(item));
-                                        //     }).toList(),
-                                        //     onChanged: (newValue) {
-                                        //       setState(() {
-                                        //         dropdownvalue = newValue;
-                                        //       });
-                                        //     }),
-                                      ],
-                                    ),
-                                  ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -233,6 +179,37 @@ class RegisterScreenState extends State<RegisterScreen> {
                                         return null;
                                       },
                                       obscureText: false),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20.0, vertical: 5.0),
+                                  child: GestureDetector(
+                                    onTap: () => _showUsertTypes(),
+                                    child: AbsorbPointer(
+                                      child: CustomTextFormField(
+                                          onSaved: (value) {},
+                                          readOnly: false,
+                                          height: 5.0,
+                                          controller: _usertType,
+                                          backgroundColor: AppColors.white,
+                                          iconColor: AppColors.black,
+                                          isIconAvailable: true,
+                                          hint: 'User Type',
+                                          icon: Icons
+                                              .supervised_user_circle_rounded,
+                                          textInputType:
+                                              TextInputType.emailAddress,
+                                          validation: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return "name can't be empty";
+                                            }
+
+                                            return null;
+                                          },
+                                          obscureText: false),
+                                    ),
+                                  ),
                                 ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
@@ -313,7 +290,7 @@ class RegisterScreenState extends State<RegisterScreen> {
                                             const EdgeInsets.only(left: 10.0),
                                         child: SizedBox(
                                           width: displaySize.width * 0.65,
-                                          child: Text(
+                                          child: const Text(
                                             'By signing up I have agreed to the Terms & Conditions and Privacy Policy',
                                             style: TextStyle(
                                                 color: AppColors.black,
@@ -348,6 +325,64 @@ class RegisterScreenState extends State<RegisterScreen> {
                 ),
               ))),
     );
+  }
+
+  void _showUsertTypes() {
+    showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+        builder: (_) => Wrap(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Text(
+                      'Select Type',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                ),
+                ListView(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                  shrinkWrap: true,
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.person),
+                      title: const Text(
+                        'Student',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        setState(() {
+                          selectedType = 'Student';
+                          _usertType.text = selectedType;
+                        });
+                        Navigator.pop(context);
+                      },
+                    ),
+                    ListTile(
+                      onTap: () {
+                        setState(() {
+                          selectedType = 'Lecturer';
+                          _usertType.text = selectedType;
+                        });
+                        Navigator.pop(context);
+                      },
+                      leading: const Icon(Icons.supervisor_account_rounded),
+                      title: const Text(
+                        'Lecturer',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    )
+                  ],
+                )
+              ],
+            ));
   }
 
   getShadow() {
