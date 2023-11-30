@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../models/attendance_models.dart';
 import '../utils/colors.dart';
 import '../utils/date_util.dart';
+import '../views/CourseList/students_attendance_list.dart';
 
 class LecturerAttendanceCard extends StatelessWidget {
   LecturerAttendanceCard(
@@ -13,6 +15,7 @@ class LecturerAttendanceCard extends StatelessWidget {
   String lectuerName;
   bool isPresent;
   DateTime date;
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -38,12 +41,22 @@ class LecturerAttendanceCard extends StatelessWidget {
 }
 
 class StudentAttendanceCard extends StatelessWidget {
-  String matricNumber;
-  String name;
+  Attendance attendance;
+  Session session;
+  Semester semester;
+  Course course;
+  UserData student;
+  Function onTap;
 
   StudentAttendanceCard(
-      {super.key, required this.matricNumber, required this.name});
-
+      {super.key,
+      required this.attendance,
+      required this.course,
+      required this.semester,
+      required this.onTap,
+      required this.session,
+      required this.student});
+  bool _isLoading = true;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -53,15 +66,18 @@ class StudentAttendanceCard extends StatelessWidget {
       color: Colors.white,
       child: ListTile(
           title: Text(
-            matricNumber,
+            student.matricNumber,
             style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
                 color: AppColors.black),
           ),
-          subtitle: Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(student.studentName,
+              style: TextStyle(fontWeight: FontWeight.bold)),
           trailing: Chip(
-              onDeleted: () {},
+              onDeleted: () {
+                onTap;
+              },
               backgroundColor: AppColors.red,
               label: Text(
                 "Remove",
@@ -105,7 +121,17 @@ class AttendanceCard extends StatelessWidget {
           ),
           subtitle: Text(DateUtil.getNormalDate(attendance.startTime)),
           trailing: Chip(
-              onDeleted: () {},
+              onDeleted: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => StudentAttendanceList(
+                              course: course,
+                              semester: semester,
+                              session: session,
+                              attendance: attendance,
+                            )));
+              },
               backgroundColor: open ? AppColors.green : AppColors.red,
               label: Text(
                 open ? "Open" : "Closed",

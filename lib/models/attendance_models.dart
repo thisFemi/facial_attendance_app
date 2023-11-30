@@ -1,16 +1,18 @@
 class Attendance {
   String attendanceId;
   String lecturerName;
+  String lecturerId;
   DateTime startTime;
   DateTime endTime;
   String verificationCode;
   String range;
   bool isPresent;
-  List<StudentInfo>? students; // New parameter
+  List<UserData>? students; // New parameter
 
   Attendance({
     required this.attendanceId,
     required this.lecturerName,
+    required this.lecturerId,
     required this.startTime,
     required this.endTime,
     required this.verificationCode,
@@ -24,15 +26,16 @@ class Attendance {
     return Attendance(
       attendanceId: json['attendanceId'],
       lecturerName: json['lecturerName'],
+      lecturerId: json['lecturerId'],
       startTime: DateTime.parse(json['startTime']),
       endTime: DateTime.parse(json['endTime']),
       verificationCode: json['verificationCode'],
       range: json['range'],
       isPresent: json['isPresent'] ?? false,
       students: json['students'] != null
-          ? List<StudentInfo>.from(
+          ? List<UserData>.from(
               json['students']
-                  .map((studentJson) => StudentInfo.fromJson(studentJson)),
+                  .map((studentJson) => UserData.fromJson(studentJson)),
             )
           : null,
     );
@@ -43,6 +46,7 @@ class Attendance {
     return {
       'attendanceId': attendanceId,
       'lecturerName': lecturerName,
+      "lecturerId": lecturerId,
       'startTime': startTime.toIso8601String(),
       'endTime': endTime.toIso8601String(),
       'verificationCode': verificationCode,
@@ -53,21 +57,21 @@ class Attendance {
   }
 }
 
-class StudentInfo {
+class UserData {
   String studentId;
   String matricNumber;
   String studentName;
   bool isPresent;
 
-  StudentInfo({
+  UserData({
     required this.studentId,
     required this.matricNumber,
     required this.studentName,
     required this.isPresent,
   });
 
-  factory StudentInfo.fromJson(Map<String, dynamic> json) {
-    return StudentInfo(
+  factory UserData.fromJson(Map<String, dynamic> json) {
+    return UserData(
       studentId: json['studentId'],
       matricNumber: json['matricNumber'],
       studentName: json['studentName'],

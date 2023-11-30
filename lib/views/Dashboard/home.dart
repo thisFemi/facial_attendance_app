@@ -35,7 +35,7 @@ class HomeScreen extends StatelessWidget {
                   width: Screen.deviceSize(context).height * .05,
                   fit: BoxFit.cover,
                   imageUrl:
-                      "${APIs.userInfo.studentInfo != null ? APIs.userInfo.studentInfo!.imgUrl : ""}",
+                      "${APIs.userInfo.userInfo != null ? APIs.userInfo.userInfo!.imgUrl : ""}",
                   errorWidget: (context, url, error) => const CircleAvatar(
                     backgroundColor: AppColors.black,
                     child: Icon(
@@ -300,7 +300,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                 );
               }),
-          APIs.userInfo.studentInfo == null
+          APIs.userInfo.userInfo == null
               ? SizedBox(
                   height: 80,
                   child: ListView.builder(

@@ -4,7 +4,7 @@ class User {
   UserType userType;
   String phoneNumber;
   String email;
-  StudentInfo? studentInfo;
+  StudentData? userInfo;
 
   User({
     required this.id,
@@ -12,7 +12,7 @@ class User {
     required this.userType,
     required this.email,
     required this.phoneNumber,
-    this.studentInfo,
+    this.userInfo,
   });
 
   // Factory constructor to create a User object from a Map (JSON)
@@ -24,8 +24,8 @@ class User {
           json['userType']), // Convert string to enum
       email: json['email'],
       phoneNumber: json['phoneNumber'],
-      studentInfo: json['studentInfo'] != null
-          ? StudentInfo.fromJson(json['studentInfo'])
+      userInfo: json['userInfo'] != null
+          ? StudentData.fromJson(json['userInfo'])
           : null,
     );
   }
@@ -37,30 +37,29 @@ class User {
       'name': name,
       'userType': userType.toStringValue(), // Convert enum to string
       'email': email,
-      'studentInfo':
-          studentInfo?.toJson(), // Convert StudentInfo to JSON if not null
+      'userInfo': userInfo?.toJson(), // Convert userInfo to JSON if not null
     };
   }
 }
 
-class StudentInfo {
+class StudentData {
   String imgUrl;
   String matricNumber;
 
-  StudentInfo({
+  StudentData({
     required this.imgUrl,
     required this.matricNumber,
   });
 
-  // Factory constructor to create a StudentInfo object from a Map (JSON)
-  factory StudentInfo.fromJson(Map<String, dynamic> json) {
-    return StudentInfo(
+  // Factory constructor to create a userInfo object from a Map (JSON)
+  factory StudentData.fromJson(Map<String, dynamic> json) {
+    return StudentData(
       imgUrl: json['imgUrl'],
       matricNumber: json['matricNumber'],
     );
   }
 
-  // Convert StudentInfo object to a Map (JSON)
+  // Convert userInfo object to a Map (JSON)
   Map<String, dynamic> toJson() {
     return {
       'imgUrl': imgUrl,
@@ -89,4 +88,3 @@ extension UserTypeExtension on UserType {
     }
   }
 }
-

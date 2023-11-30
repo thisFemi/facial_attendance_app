@@ -79,7 +79,7 @@ class CourseScreen extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (_) => StudentAttendanceList(
+                                    builder: (_) => AttendanceList(
                                           course: course,
                                           semester: semester,
                                           session: session,
