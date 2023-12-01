@@ -75,14 +75,14 @@ class StudentAttendanceList extends StatefulWidget {
 
 class _StudentAttendanceListState extends State<StudentAttendanceList> {
   bool _isLoading = false;
-  List<UserData> students = [];
+  List<StudentData> students = [];
   @override
   void initState() {
     students = widget.attendance.students!;
     super.initState();
   }
 
-  Future<void> removeStudent(UserData student) async {
+  Future<void> removeStudent(StudentData student) async {
     try {
       setState(() {
         _isLoading = true;

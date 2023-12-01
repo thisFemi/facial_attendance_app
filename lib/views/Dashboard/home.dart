@@ -7,13 +7,51 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 import '../../api/apis.dart';
 import '../../models/attendance_models.dart';
+import '../../models/dummy.dart';
 import '../../utils/Common.dart';
 import '../../utils/colors.dart';
 import '../../widgets/notification_icon.dart';
+import '../CourseList/course_registration.dart';
 import '../Settings/Profile/notification_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<TodoCard> todos = [];
+
+  @override
+  void initState() {
+    initTodos();
+   // APIs.academicRecords = DUMMY.dummyAcademicRecords.last;
+    super.initState();
+  }
+
+  void initTodos() {
+    if (APIs.userInfo.phoneNumber == "") {
+      todos.add(
+        TodoCard(
+            onTap: () {
+              print("do registratin");
+            },
+            title: "Compelete\nRegistation"),
+      );
+    }
+    if (APIs.academicRecords == null) {
+      todos.add(
+        TodoCard(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const CourseRegScreen()));
+            },
+            title: "Register\nSession"),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,17 +94,11 @@ class HomeScreen extends StatelessWidget {
                       SizedBox(
                         width: Screen.deviceSize(context).width / 2.7,
                         child: Text(
-                          'Hello, ${APIs.userInfo.name}',
+                          'Hello, ${APIs.userInfo.name}🎉',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                      ),
-                      const Text(
-                        '🎉',
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ],
                   ),
@@ -112,10 +144,16 @@ class HomeScreen extends StatelessWidget {
                 }
 
                 if (!snapshot.hasData || !snapshot.data!.exists) {
-                  return const Text('Student Info does not exist');
+                  return Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 30.0),
+                        child: Center(
+                            child: const Text('Academic records not found!')),
+                      ));
                 }
-                final studentData =
-                    StudentData.fromJson(snapshot.data!.data()!);
+                final studentData = UserData.fromJson(snapshot.data!.data()!);
 
                 return Column(
                   children: [
@@ -287,30 +325,39 @@ class HomeScreen extends StatelessWidget {
                                   onTap: () {},
                                   title: course.courseId);
                             }),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        const Text(
-                          'To-Do  ',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
                       ],
                     )),
                   ],
                 );
               }),
-          APIs.userInfo.userInfo == null
-              ? SizedBox(
-                  height: 80,
-                  child: ListView.builder(
-                      itemCount: 5,
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      physics: const BouncingScrollPhysics(),
-                      itemBuilder: (ctx, index) {
-                        return const TodoCard();
-                      }),
+          (APIs.userInfo.phoneNumber == "" || APIs.academicRecords == null)
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    const Text(
+                      'To Do  ',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                    SizedBox(
+                      height: 80,
+                      child: ListView.builder(
+                          itemCount: todos.length,
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          physics: const BouncingScrollPhysics(),
+                          itemBuilder: (ctx, index) {
+                            final todo = todos[index];
+                            return TodoCard(
+                              onTap: todo.onTap,
+                              title: todo.title,
+                            );
+                          }),
+                    ),
+                  ],
                 )
               : const SizedBox.shrink(),
           const SizedBox(

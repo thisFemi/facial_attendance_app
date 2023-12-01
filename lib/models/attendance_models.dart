@@ -7,7 +7,7 @@ class Attendance {
   String verificationCode;
   String range;
   bool isPresent;
-  List<UserData>? students; // New parameter
+  List<StudentData>? students; // New parameter
 
   Attendance({
     required this.attendanceId,
@@ -33,7 +33,7 @@ class Attendance {
       range: json['range'],
       isPresent: json['isPresent'] ?? false,
       students: json['students'] != null
-          ? List<UserData>.from(
+          ? List<StudentData>.from(
               json['students']
                   .map((studentJson) => UserData.fromJson(studentJson)),
             )
@@ -57,21 +57,21 @@ class Attendance {
   }
 }
 
-class UserData {
+class StudentData {
   String studentId;
   String matricNumber;
   String studentName;
   bool isPresent;
 
-  UserData({
+  StudentData({
     required this.studentId,
     required this.matricNumber,
     required this.studentName,
     required this.isPresent,
   });
 
-  factory UserData.fromJson(Map<String, dynamic> json) {
-    return UserData(
+  factory StudentData.fromJson(Map<String, dynamic> json) {
+    return StudentData(
       studentId: json['studentId'],
       matricNumber: json['matricNumber'],
       studentName: json['studentName'],
@@ -189,13 +189,13 @@ class Session {
   }
 }
 
-class StudentData {
+class UserData {
   String studentId;
   String matricId;
   String studentName;
   List<Session> sessions;
 
-  StudentData({
+  UserData({
     required this.studentId,
     required this.studentName,
     required this.matricId,
@@ -244,8 +244,8 @@ class StudentData {
   }
 
   // Factory constructor to create a StudentData object from a Map (JSON)
-  factory StudentData.fromJson(Map<String, dynamic> json) {
-    return StudentData(
+  factory UserData.fromJson(Map<String, dynamic> json) {
+    return UserData(
       studentId: json['studentId'],
       studentName: json['studentName'],
       matricId: json['matricId'],

@@ -44,7 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             });
           },
           children: [
-            const HomeScreen(),
+             HomeScreen(),
             AcademicsScreen(),
             const CourseRegistrationMenu(),
             const SettingScreen(),

@@ -23,7 +23,7 @@ class CourseRegistrationMenu extends StatelessWidget {
           children: [
             Title(
                 color: AppColors.black,
-                child: Text(
+                child: const Text(
                   'Registration',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 )),
@@ -32,8 +32,8 @@ class CourseRegistrationMenu extends StatelessWidget {
         Expanded(
             child: GridView.builder(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
                     mainAxisSpacing: 2.2,
                     childAspectRatio: 0.9),
@@ -42,7 +42,7 @@ class CourseRegistrationMenu extends StatelessWidget {
                   final List<IconData> icons = [
                     Icons.app_registration_rounded,
                     Icons.edit_document,
-                    Icons.help,
+                    Icons.contact_support_rounded,
                     CupertinoIcons.chat_bubble_2,
                   ];
                   final List<String> titles = [
@@ -72,7 +72,7 @@ class CourseRegistrationMenu extends StatelessWidget {
                   final List<Function> functions = [
                     () {
                       Navigator.push(context,
-                          MaterialPageRoute(builder: (_) => CourseRegScreen()));
+                          MaterialPageRoute(builder: (_) => const CourseRegScreen()));
                     },
                     () {
                       Navigator.push(

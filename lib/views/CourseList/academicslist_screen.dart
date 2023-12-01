@@ -66,9 +66,17 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
               }
 
               if (!snapshot.hasData || !snapshot.data!.exists) {
-                return const Text('Student Info does not exist');
+                return Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 30.0),
+                        child: Center(
+                            child: const Text(
+                                'Academic records not found!')),
+                      ));
               }
-              final studentData = StudentData.fromJson(snapshot.data!.data()!);
+              final studentData = UserData.fromJson(snapshot.data!.data()!);
 
               return Expanded(
                 child: ListView.builder(

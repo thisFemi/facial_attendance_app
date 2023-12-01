@@ -11,6 +11,7 @@ class CustomTextFormField extends StatefulWidget {
   Color iconColor;
   bool isIconAvailable;
   bool readOnly = false;
+  Color? fillColor;
   var validation, maxLength, onSaved;
   bool obscureText;
   TextEditingController controller;
@@ -28,6 +29,7 @@ class CustomTextFormField extends StatefulWidget {
       required this.isIconAvailable,
       required this.validation,
       required this.onSaved,
+      this.fillColor,
       required this.controller,
       required this.obscureText})
       : super(key: key);
@@ -56,6 +58,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
   IconData icon;
   TextInputType textInputType;
   Color backgroundColor;
+  Color? fillColor;
   Color iconColor;
   bool isIconAvailable;
   var validation, maxLength, onSaved;
@@ -73,6 +76,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
       required this.iconColor,
       required this.isIconAvailable,
       required this.onSaved,
+      this.fillColor,
       required this.validation,
       required this.controller,
       required this.obscureText});
@@ -82,7 +86,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         Text(
+        Text(
           hint,
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
@@ -98,7 +102,7 @@ class _CustomTextFormFieldState extends State<CustomTextFormField> {
           validator: validation,
           decoration: InputDecoration(
             filled: true,
-            fillColor: AppColors.white,
+            fillColor:fillColor ?? AppColors.white,
             hintStyle: TextStyle(color: AppColors.grey),
             hintText: hint,
             counterStyle: const TextStyle(

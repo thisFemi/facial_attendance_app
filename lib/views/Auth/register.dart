@@ -1,5 +1,6 @@
 import 'package:attend_sense/models/user_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../api/apis.dart';
 import '../../utils/colors.dart';
@@ -60,6 +61,9 @@ class RegisterScreenState extends State<RegisterScreen> {
       return;
     }
     try {
+      setState(() {
+        _isLoading = true;
+      });
       await APIs.register(_name.text, _email.text, _password.text,
               selectedType == "Student" ? UserType.student : UserType.staff)
           .then((value) {
@@ -77,10 +81,7 @@ class RegisterScreenState extends State<RegisterScreen> {
       });
       Dialogs.showSnackbar(context, error.toString());
     }
-    _formKey.currentState!.save();
-    setState(() {
-      _isLoading = true;
-    });
+   
   }
 
   bool passwordConfirmed() {
@@ -301,21 +302,53 @@ class RegisterScreenState extends State<RegisterScreen> {
                                     ],
                                   ),
                                 ),
+                                // Padding(
+                                //   padding: const EdgeInsets.symmetric(
+                                //       horizontal: 45.0, vertical: 20.0),
+                                //   child: CustomButton(
+                                //       buttonText: 'SignUp',
+                                //       textColor: AppColors.white,
+                                //       backgroundColor: AppColors.black,
+                                //       isBorder: false,
+                                //       borderColor: AppColors.black,
+                                //       onclickFunction: () {
+                                //         FocusScope.of(context).unfocus();
+                                //         if (termsAndConditionCheck == true) {
+                                //           _signUp();
+                                //         }
+                                //       }),
+                                // ),
                                 Padding(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 45.0, vertical: 20.0),
-                                  child: CustomButton(
-                                      buttonText: 'SignUp',
-                                      textColor: AppColors.white,
-                                      backgroundColor: AppColors.black,
-                                      isBorder: false,
-                                      borderColor: AppColors.black,
-                                      onclickFunction: () {
+                                    horizontal: 45,
+                                    vertical: 5,
+                                  ),
+                                  child: SizedBox(
+                                    height: 50.0,
+                                    width: displaySize.width * 0.85,
+                                    child: TextButton(
+                                      onPressed: () {
                                         FocusScope.of(context).unfocus();
                                         if (termsAndConditionCheck == true) {
-                                          _signUp();
+                                          _isLoading ? null : _signUp();
                                         }
-                                      }),
+                                      },
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: AppColors.black,
+                                      ),
+                                      child: _isLoading
+                                          ? SpinKitThreeBounce(
+                                              color: AppColors.offwhite,
+                                              size: 40)
+                                          : Text(
+                                              'Login',
+                                              style: TextStyle(
+                                                  color: AppColors.white,
+                                                  fontFamily:
+                                                      'Raleway-SemiBold'),
+                                            ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             )),

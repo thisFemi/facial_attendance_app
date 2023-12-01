@@ -52,6 +52,7 @@ dependencies:
   camera: ^0.10.5+5
   expandable: ^5.0.1
   intl: ^0.18.1
+  collection: ^1.17.2
 
 dev_dependencies:
   flutter_test:

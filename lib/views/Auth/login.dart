@@ -252,7 +252,7 @@ class _LoginState extends State<Login> {
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 20.0, vertical: 40.0),
+                                    horizontal: 20.0, vertical: 30.0),
                                 child: Align(
                                   alignment: Alignment.center,
                                   child: GestureDetector(

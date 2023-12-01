@@ -45,7 +45,7 @@ class StudentAttendanceCard extends StatelessWidget {
   Session session;
   Semester semester;
   Course course;
-  UserData student;
+  StudentData student;
   Function onTap;
 
   StudentAttendanceCard(

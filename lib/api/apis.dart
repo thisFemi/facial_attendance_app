@@ -1,8 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 import '../models/attendance_models.dart';
+import '../models/dummy.dart';
+import '../models/dummy.dart';
+import '../models/dummy.dart';
 import '../models/user_model.dart' as user_model;
 
 class APIs {
@@ -15,11 +19,12 @@ class APIs {
     try {
       final UserCredential userCredential = await auth
           .signInWithEmailAndPassword(email: email, password: password);
-      if (userCredential.user!.emailVerified) {
-        fetchUserDataFromFirestore(userCredential);
-      } else {
-        throw 'Email not yet verified, check your mail';
-      }
+      await fetchUserDataFromFirestore(userCredential);
+      // if (userCredential.user!.emailVerified) {
+      //   fetchUserDataFromFirestore(userCredential);
+      // } else {
+      //   throw 'Email not yet verified, check your mail';
+      // }
     } on FirebaseAuthException catch (e) {
       // Handle registration errors
       print('Registration error: $e');
@@ -33,6 +38,7 @@ class APIs {
   }
 
   static late user_model.User userInfo;
+  static UserData? academicRecords;
   static Future<void> fetchUserDataFromFirestore(
       UserCredential userCredential) async {
     final User? user = userCredential.user;
@@ -42,9 +48,11 @@ class APIs {
         await firestore.collection('users').doc(userUID).get();
     if (snapshot.exists) {
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
-
+      print(userData);
       final user_model.User userDataInfo = user_model.User.fromJson(userData);
       userInfo = userDataInfo;
+      academicRecords = DUMMY.dummyAcademicRecords.last;
+      print("done");
     } else {
       throw "User Details not found, kindly contact support.";
     }
@@ -64,13 +72,21 @@ class APIs {
         'email': email,
         'id': userUID,
         'userType': userType.toStringValue(),
-        'UserData': userType == user_model.UserType.student
+        'phoneNumber': "",
+        'userInfo': userType == user_model.UserType.student
             ? {"imgUrl": "", "matricNumber": ""}
             : null
       };
       await firestore.collection('users').doc(userUID).set(userData);
       final user_model.User userDataInfo = user_model.User.fromJson(userData);
       userInfo = userDataInfo;
+      academicRecords = DUMMY.dummyAcademicRecords.last;
+      print("print registration done !");
+      //  Navigator.pushAndRemoveUntil(
+      //   context,
+      //   MaterialPageRoute(builder: (_) => DashboardScreen()),
+      //       (Route<dynamic> route) => false,
+      // );
     } on FirebaseAuthException catch (e) {
       // Handle registration errors
       print('Registration error: $e');
@@ -81,7 +97,7 @@ class APIs {
       }
     } catch (error) {
       print(error);
-      throw ('Registration failed, ${error}');
+      throw ('Registration failed, $error');
     }
   }
 
@@ -95,7 +111,7 @@ class APIs {
   }
 
   static Future<void> removeStudent(
-    UserData student,
+    StudentData student,
     String sessionYear,
     int semesterNumber,
     String courseId,
