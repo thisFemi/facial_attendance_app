@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
 import '../../models/attendance_models.dart';
+import '../../utils/Common.dart';
 import '../../utils/colors.dart';
 import '../../utils/date_util.dart';
 import '../../utils/dialogs.dart';
@@ -84,6 +86,7 @@ class _CreateAttendanceScreenState extends State<CreateAttendanceScreen> {
   DateTime? startTime;
   DateTime? endTime;
   double? selectedRange;
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,20 +165,59 @@ class _CreateAttendanceScreenState extends State<CreateAttendanceScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
-                        onPressed: () async {
-                          startTime = await showDatePicker();
-                          endTime = null;
-                          setState(() {});
-                        },
+                        //   style: ButtonStyle(backgroundColor:MaterialStateProperty<Colors.whi> AppColors.white),
+                        onPressed: () async {},
                         child: const Text("Range")),
-                    Text(startTime == null
-                        ? ""
-                        : DateUtil.formatDateTime(startTime!))
+                    DropdownButton<double>(
+                      value: selectedRange,
+                      hint: const Text("Select range"),
+                      items: ranges.map((double item) {
+                        return DropdownMenuItem<double>(
+                          value: item,
+                          child: Text("$item m"),
+                        );
+                      }).toList(),
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedRange = newValue;
+                        });
+                      },
+                    )
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 40),
+            (startTime != null && endTime != null && selectedRange != null)
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
+                    child: SizedBox(
+                      height: 50.0,
+                      width: Screen.deviceSize(context).width * 0.85,
+                      child: TextButton(
+                        onPressed: () {
+                          // Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: AppColors.black,
+                        ),
+                        child: _isLoading
+                            ? const SpinKitThreeBounce(
+                                color: AppColors.offwhite, size: 40)
+                            : const Text(
+                                'Submit',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontFamily: 'Raleway-SemiBold',
+                                ),
+                              ),
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink()
           ],
         ),
       ),
