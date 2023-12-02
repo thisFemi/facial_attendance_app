@@ -1,7 +1,9 @@
+import 'package:attend_sense/models/attendance_models.dart';
 import 'package:attend_sense/utils/colors.dart';
 import 'package:attend_sense/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 
@@ -11,8 +13,16 @@ import '../views/Others/attendance_capture_screen.dart';
 const defaultDuration = Duration(days: 2, hours: 2, minutes: 30);
 
 class UpcomingAttendanceCard extends StatefulWidget {
-  const UpcomingAttendanceCard({super.key});
-
+  UpcomingAttendanceCard(
+      {super.key,
+      required this.session,
+      required this.semester,
+      required this.course,
+      required this.attendance});
+  Session session;
+  Semester semester;
+  Course course;
+  Attendance attendance;
   @override
   State<UpcomingAttendanceCard> createState() => _UpcomingAttendanceCardState();
 }
@@ -20,8 +30,34 @@ class UpcomingAttendanceCard extends StatefulWidget {
 class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
   final TextEditingController _username = TextEditingController();
   bool _isLoading = true;
+  Future<bool> isUserWithinDistance() async {
+    try {
+      // Get the user's current location
+      Position userLocation = await Geolocator.getCurrentPosition();
+
+      // Calculate the distance between the user and the attendance location
+      double distanceInMeters = await Geolocator.distanceBetween(
+        userLocation.latitude,
+        userLocation.longitude,
+        widget.attendance
+            .latitude, // Replace with the actual latitude of the attendance
+        widget.attendance
+            .longitude, // Replace with the actual longitude of the attendance
+      );
+      print("distance ${distanceInMeters}");
+      // Check if the distance is within the specified range (10-20 meters)
+      return distanceInMeters <= widget.attendance.range;
+    } catch (e) {
+      print('Error getting user location: $e');
+      return false; // Handle the error appropriately
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    Duration timeDifference =
+        widget.attendance.endTime.difference(DateTime.now());
+
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 5),
       elevation: 2,
@@ -106,7 +142,11 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
                           return "name can't be empty";
                         } else if (value.length < 3) {
                           return "name too short";
+                        } else if (value !=
+                            widget.attendance.verificationCode) {
+                          return "Wrong code";
                         }
+
                         return null;
                       },
                     ),
@@ -119,14 +159,25 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
                         height: 50.0,
                         // width: Screen.deviceSize(context).width * 0.85,
                         child: TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => AttendanceCapture(
-                                        // user: widget.user,
-                                        )));
+                          onPressed: () async {
+                            await isUserWithinDistance().then((result) {
+                              Navigator.pop(context);
+                              if (result) {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => AttendanceCapture(
+                                            // user: widget.user,
+                                            )));
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        'You are not within the attendance range.'),
+                                  ),
+                                );
+                              }
+                            });
                           },
                           style: TextButton.styleFrom(
                             backgroundColor: AppColors.black,
@@ -148,11 +199,11 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
               });
         },
         child: ListTile(
-            title: const Text("CSC301",
+            title: Text(widget.course.courseId,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            subtitle: const Text(
-              "Dr Ajayi.O",
+            subtitle: Text(
+              widget.attendance.lecturerName,
               overflow: TextOverflow.ellipsis,
             ),
             trailing: SizedBox(
@@ -165,7 +216,7 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
                   SizedBox(
                     height: 30,
                     child: SlideCountdownSeparated(
-                      duration: const Duration(hours: 2),
+                      duration: timeDifference,
                       separatorType: SeparatorType.symbol,
                       separatorStyle: const TextStyle(
                         color: AppColors.black,

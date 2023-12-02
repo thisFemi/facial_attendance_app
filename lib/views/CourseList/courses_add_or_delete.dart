@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../../api/apis.dart';
+import '../../models/attendance_models.dart';
+import '../../utils/Common.dart';
 import '../../utils/colors.dart';
 import '../../widgets/custom_appBar.dart';
 
 class AddOrDeleteScreen extends StatefulWidget {
-  final String session;
-  final int semester;
+  Session session;
+  Semester semester;
 
   AddOrDeleteScreen({required this.semester, required this.session});
 
@@ -14,11 +18,13 @@ class AddOrDeleteScreen extends StatefulWidget {
 }
 
 class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
-  List<String> courses = [
-    "CSC301",
-    "CSC321",
-    "CSC315",
-  ];
+  List<Course> courses = [];
+  bool _isLoading = false;
+  @override
+  void initState() {
+    courses = widget.semester.courses;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,25 +33,66 @@ class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
         centerTitle: true,
         context: context,
         showArrowBack: true,
-        title: "${widget.session} (${widget.semester} semester)",
+        title:
+            "${widget.session.sessionYear} (${widget.semester.semesterNumber} semester)",
       ),
       backgroundColor: AppColors.white,
       body: Padding(
-        padding: EdgeInsets.all(16),
-        child: ListView.builder(
-          itemCount: courses.length,
-          itemBuilder: (ctx, index) {
-            final course = courses[index];
-            return AddOrDeleteSessionCard(
-              session: course,
-              onDelete: () {
-                // Remove the course from the list
-                setState(() {
-                  courses.removeAt(index);
-                });
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            ListView.builder(
+              itemCount: courses.length,
+              shrinkWrap: true,
+              itemBuilder: (ctx, index) {
+                final course = courses[index];
+                return AddOrDeleteSessionCard(
+                  course: course,
+                  onDelete: () {
+                    // Remove the course from the list
+                    setState(() {
+                      courses.removeAt(index);
+                    });
+                  },
+                );
               },
-            );
-          },
+            ),
+            courses.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 20,
+                    ),
+                    child: SizedBox(
+                      height: 50.0,
+                      width: Screen.deviceSize(context).width * 0.85,
+                      child: TextButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () {
+                                addCoursesToAcademicRecord(
+                                    courses, widget.session, widget.semester.semesterNumber);
+
+                                Navigator.pop(context);
+                              },
+                        style: TextButton.styleFrom(
+                          backgroundColor: AppColors.black,
+                        ),
+                        child: _isLoading
+                            ? const SpinKitThreeBounce(
+                                color: AppColors.offwhite, size: 40)
+                            : const Text(
+                                'Submit',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontFamily: 'Raleway-SemiBold',
+                                ),
+                              ),
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink()
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -54,49 +101,177 @@ class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
           // Open a modal or navigate to a screen to add a new course
           _showAddCourseModal(context);
         },
-        child: Icon(Icons.add,),
+        child: const Icon(
+          Icons.add,
+        ),
       ),
     );
   }
 
-  void _showAddCourseModal(BuildContext context) {
-    String newCourse = "";
+void addCoursesToAcademicRecord(
+    List<Course> courses, Session selectedSession, int selectedSemester) {
+  if (APIs.academicRecords == null) {
+    // Handle the case where academicRecords is null (initialize it or show an error)
+    print('Error: academicRecords is null');
+    return;
+  }
 
-    showModalBottomSheet(
+  // Find the index of the selected session in the academic records
+  int sessionIndex = APIs.academicRecords!.sessions.indexWhere(
+      (session) => session.sessionYear == selectedSession.sessionYear);
+
+  if (sessionIndex != -1) {
+  List<Semester> semesters = APIs.academicRecords!.sessions[sessionIndex].semesters;
   
+  if (selectedSemester < semesters.length) {
+    // Add the semester with the selected courses to the selected session
+    semesters[selectedSemester-1].courses = courses;
+    print('added to existing session');
+  } else {
+    // Handle the case where selectedSemester is out of range
+    print('Error: Invalid semester index');
+  }
+} 
+
+ else {
+    // If the session is not available, add it with the selected semester and courses
+    throw('Error: Session not found');
+  }
+}
+
+  void _showAddCourseModal(BuildContext context) {
+    TextEditingController _title = TextEditingController();
+    TextEditingController _code = TextEditingController();
+    final _keyForm = GlobalKey<FormState>();
+    showModalBottomSheet(
       context: context,
-       shape: const RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
               topRight: Radius.circular(10), topLeft: Radius.circular(10))),
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16),
-          child: Column(
-             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Add New Course',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-              ),
-              SizedBox(height: 8),
-              TextField(
-                onChanged: (value) {
-                  newCourse = value;
-                },
-                decoration: InputDecoration(labelText: 'Course Name'),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Add the new course to the list
-                  setState(() {
-                    courses.add(newCourse);
-                  });
-                  Navigator.pop(context); // Close the modal sheet
-                },
-                child: Text("Add Course"),
-              ),
-            ],
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _keyForm,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Align(
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Add New Course',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Course Code',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 5),
+                TextFormField(
+                  controller: _code,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+                    hintText: "enter course code",
+                    counterStyle: const TextStyle(height: double.minPositive),
+                    labelStyle: TextStyle(
+                        color: AppColors.grey,
+                        fontFamily: 'Raleway-SemiBold',
+                        fontSize: 15.0),
+                    border: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    contentPadding: const EdgeInsets.all(10),
+                  ),
+                  validator: (value) {
+                    RegExp regex = RegExp(r'\d');
+                    if (value == null || value.isEmpty || value.length < 3) {
+                      return 'course code is too  short or empty';
+                    }
+                    if (value.length > 7) {
+                      return 'invalid course code';
+                    }
+                    if (!regex.hasMatch(value)) {
+                      return "expected format XXX111";
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Course Title',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 5),
+                TextFormField(
+                  controller: _title,
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+                    hintText: "enter course title",
+                    counterStyle: const TextStyle(height: double.minPositive),
+                    labelStyle: TextStyle(
+                        color: AppColors.grey,
+                        fontFamily: 'Raleway-SemiBold',
+                        fontSize: 15.0),
+                    border: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    errorBorder: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    contentPadding: const EdgeInsets.all(10),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty || value.length < 3) {
+                      return 'title is too  short or empty';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (!_keyForm.currentState!.validate()) {
+                        return;
+                      }
+                      _keyForm.currentState!.save();
+                      courses.add(Course(
+                          courseId: _code.text.trim().toUpperCase(),
+                          courseName: _title.text.trim(),
+                          attendanceList: []));
+                      Navigator.pop(context);
+                      setState(() {});
+                    },
+                    child: const Text("Add Course"),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -105,21 +280,25 @@ class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
 }
 
 class AddOrDeleteSessionCard extends StatelessWidget {
-  final String session;
+  final Course course;
   final VoidCallback onDelete;
 
-  AddOrDeleteSessionCard({required this.session, required this.onDelete});
+  AddOrDeleteSessionCard({required this.course, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      margin: EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
-        title: Text(session),
+        title: Text(course.courseId),
+        subtitle: Text(course.courseName),
         trailing: IconButton(
-          icon: Icon(CupertinoIcons.delete, color: AppColors.red,),
+          icon: const Icon(
+            CupertinoIcons.delete,
+            color: AppColors.red,
+          ),
           onPressed: onDelete,
         ),
       ),

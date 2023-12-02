@@ -28,6 +28,13 @@ class _LoginState extends State<Login> {
   final TextEditingController _password = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _username.text = "admin@gmail.com";
+    _password.text = "1234567";
+  }
+
+  @override
   var _isLoading = false;
   void _showErrorDialog(String message) {
     showDialog(
@@ -71,20 +78,12 @@ class _LoginState extends State<Login> {
     }
   }
 
-  void initState() {
-    // _username.text = 'staff / business@gmail.com';
-    // _username.text = 'admin3@clearance.aaua.edu.ng';
-    // _password.text = '123456';
-
-    //authProcess();
-
-    super.initState();
-  }
+ 
 
   @override
   Widget build(BuildContext context) {
     final displaySize = MediaQuery.sizeOf(context);
- 
+
     return Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: AppColors.white,

@@ -1,7 +1,7 @@
 import 'package:attend_sense/models/attendance_models.dart';
 
 class DUMMY {
- static List<UserData> dummyAcademicRecords = [
+  static List<UserData> dummyAcademicRecords = [
     UserData(
       studentId: '1',
       studentName: 'John Doe',
@@ -22,9 +22,11 @@ class DUMMY {
                       lecturerName: 'Dr. Smith',
                       lecturerId: '101',
                       startTime: DateTime(2021, 9, 1, 8, 0),
-                      endTime: DateTime(2021, 9, 1, 10, 0),
+                      endTime: DateTime(2023, 9, 1, 10, 0),
                       verificationCode: 'ABC123',
-                      range: 'A101-A110',
+                      range: 20,
+                      latitude: 6.5627514,
+                      longitude: 3.2459489,
                       isPresent: true,
                       students: [
                         StudentData(
@@ -53,10 +55,12 @@ class DUMMY {
                       attendanceId: '01',
                       lecturerName: 'Dr. Smith',
                       lecturerId: '101',
+                      latitude: 6.5627514,
+                      longitude: 3.2459489,
                       startTime: DateTime(2021, 9, 1, 8, 0),
-                      endTime: DateTime(2021, 9, 1, 10, 0),
+                      endTime: DateTime(2024, 9, 1, 10, 0),
                       verificationCode: 'ABC123',
-                      range: 'A101-A110',
+                      range: 50,
                       isPresent: true,
                       students: [
                         StudentData(
@@ -92,9 +96,11 @@ class DUMMY {
                       lecturerName: 'Dr. Smith',
                       lecturerId: '101',
                       startTime: DateTime(2021, 9, 1, 8, 0),
-                      endTime: DateTime(2021, 9, 1, 10, 0),
+                      endTime: DateTime(2025, 9, 1, 10, 0),
                       verificationCode: 'ABC123',
-                      range: 'A101-A110',
+                      latitude: 6.5627514,
+                      longitude: 3.2459489,
+                      range: 20,
                       isPresent: true,
                       students: [
                         StudentData(

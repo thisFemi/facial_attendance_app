@@ -53,6 +53,8 @@ dependencies:
   expandable: ^5.0.1
   intl: ^0.18.1
   collection: ^1.17.2
+  geolocator: ^10.1.0
+  omni_datetime_picker: ^1.0.9
 
 dev_dependencies:
   flutter_test:

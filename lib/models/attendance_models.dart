@@ -5,9 +5,11 @@ class Attendance {
   DateTime startTime;
   DateTime endTime;
   String verificationCode;
-  String range;
+double range;
   bool isPresent;
-  List<StudentData>? students; // New parameter
+  double latitude; // New property
+  double longitude; // New property
+  List<StudentData>? students;
 
   Attendance({
     required this.attendanceId,
@@ -18,10 +20,11 @@ class Attendance {
     required this.verificationCode,
     required this.range,
     required this.isPresent,
-    this.students, // Include the new parameter
+    required this.latitude,
+    required this.longitude,
+    this.students,
   });
 
-  // Factory constructor to create an Attendance object from a Map (JSON)
   factory Attendance.fromJson(Map<String, dynamic> json) {
     return Attendance(
       attendanceId: json['attendanceId'],
@@ -32,26 +35,28 @@ class Attendance {
       verificationCode: json['verificationCode'],
       range: json['range'],
       isPresent: json['isPresent'] ?? false,
+      latitude: json['latitude'], // Replace with the actual key in your JSON
+      longitude: json['longitude'], // Replace with the actual key in your JSON
       students: json['students'] != null
           ? List<StudentData>.from(
-              json['students']
-                  .map((studentJson) => UserData.fromJson(studentJson)),
+              json['students'].map((studentJson) => StudentData.fromJson(studentJson)),
             )
           : null,
     );
   }
 
-  // Convert Attendance object to a Map (JSON)
   Map<String, dynamic> toJson() {
     return {
       'attendanceId': attendanceId,
       'lecturerName': lecturerName,
-      "lecturerId": lecturerId,
+      'lecturerId': lecturerId,
       'startTime': startTime.toIso8601String(),
       'endTime': endTime.toIso8601String(),
       'verificationCode': verificationCode,
       'range': range,
       'isPresent': isPresent,
+      'latitude': latitude, // Replace with the actual key you want to use in JSON
+      'longitude': longitude, // Replace with the actual key you want to use in JSON
       'students': students?.map((student) => student.toJson()).toList(),
     };
   }
@@ -201,6 +206,21 @@ class UserData {
     required this.matricId,
     required this.sessions,
   });
+  bool hasSessionWithUpcomingAttendance() {
+    for (var session in sessions) {
+      for (var semester in session.semesters) {
+        for (var course in semester.courses) {
+          for (var attendance in course.attendanceList) {
+            if (DateTime.now().isBefore(attendance.endTime)) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
   int getTotalSemesters() {
     return sessions.length;
   }

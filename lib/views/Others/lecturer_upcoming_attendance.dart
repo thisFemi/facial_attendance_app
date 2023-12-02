@@ -1,3 +1,4 @@
+import 'package:attend_sense/views/Others/create_attendance.dart';
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 
@@ -5,18 +6,16 @@ import '../../api/apis.dart';
 import '../../models/attendance_models.dart';
 import '../../utils/colors.dart';
 import '../../widgets/custom_appBar.dart';
-import 'courses_add_or_delete.dart';
 
-class AddOrDeleteListScreen extends StatefulWidget {
-  AddOrDeleteListScreen({super.key});
+class LecturerListOfAttendance extends StatefulWidget {
+  const LecturerListOfAttendance({super.key});
 
   @override
-  State<AddOrDeleteListScreen> createState() => _AddOrDeleteListScreenState();
+  State<LecturerListOfAttendance> createState() => _LecturerListOfAttendanceState();
 }
 
-class _AddOrDeleteListScreenState extends State<AddOrDeleteListScreen> {
-  List<Session> sessions = [];
-
+class _LecturerListOfAttendanceState extends State<LecturerListOfAttendance> {
+ List<Session> sessions = [];
   @override
   void initState() {
     sessions =
@@ -48,7 +47,7 @@ class _AddOrDeleteListScreenState extends State<AddOrDeleteListScreen> {
             //   ),
             // ),
           ],
-          title: "Add Or Delete"),
+          title: "Attendance"),
       backgroundColor: AppColors.white,
       body: Padding(
         padding: EdgeInsets.all(16),
@@ -58,19 +57,18 @@ class _AddOrDeleteListScreenState extends State<AddOrDeleteListScreen> {
                 shrinkWrap: true,
                 itemBuilder: (ctx, index) {
                   final sesion = sessions[index];
-                  return AddOrDeleteSessionCard(session: sesion);
+                  return AttendanceSessionCard(session: sesion);
                 })),
       ),
     );
   }
 }
-
-class AddOrDeleteSessionCard extends StatelessWidget {
-  Session session;
-  AddOrDeleteSessionCard({super.key, required this.session});
+class AttendanceSessionCard extends StatelessWidget {
+   Session session;
+   AttendanceSessionCard({super.key,required this.session});
 
   @override
-  Widget build(BuildContext context) {
+   Widget build(BuildContext context) {
     return Card(
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
@@ -123,7 +121,6 @@ class AddOrDeleteSessionCard extends StatelessWidget {
         ));
   }
 }
-
 class SemesterCard extends StatelessWidget {
   Semester semester;
   Session sessioon;
@@ -136,9 +133,9 @@ class SemesterCard extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (_) => AddOrDeleteScreen(
+                builder: (_) => CreateAttendanceListScreen(
                       semester: semester,
-                      session: sessioon,
+                      sessioon: sessioon,
                     )));
       },
       title: Text("Semester ${semester.semesterNumber}"),

@@ -1,5 +1,6 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:attend_sense/models/theme.dart';
+import 'package:attend_sense/models/user_model.dart';
 import 'package:attend_sense/views/CourseList/academicslist_screen.dart';
 import 'package:attend_sense/views/Dashboard/home.dart';
 import 'package:attend_sense/views/Others/upcoming_attendane_screen.dart';
@@ -7,9 +8,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../api/apis.dart';
 import '../../provider/theme.dart';
 import '../../utils/colors.dart';
 import '../CourseList/course_registration_menu_screen.dart';
+import '../Others/lecturer_upcoming_attendance.dart';
 import '../Settings/settings_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -44,7 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             });
           },
           children: [
-             HomeScreen(),
+            HomeScreen(),
             AcademicsScreen(),
             const CourseRegistrationMenu(),
             const SettingScreen(),
@@ -57,12 +60,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
           color: Colors.white,
         ),
         onPressed: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (_) => const UpcomingAttendanceScreen(
-                      // user: widget.user,
-                      )));
+          if (APIs.userInfo.userType != UserType.staff) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const LecturerListOfAttendance(
+                        // user: widget.user,
+                        )));
+          } else {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => const UpcomingAttendanceScreen(
+                        // user: widget.user,
+                        )));
+          }
         },
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -95,8 +107,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
-
 
   final iconList = <IconData>[
     CupertinoIcons.home,

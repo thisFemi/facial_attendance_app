@@ -58,11 +58,11 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
             stream: APIs.fetchAcademicData(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator(); // Loading indicator while waiting for data
+                return Center(child: const CircularProgressIndicator()); // Loading indicator while waiting for data
               }
 
               if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
+                return Center(child: Text('Error: ${snapshot.error}'));
               }
 
               if (!snapshot.hasData || !snapshot.data!.exists) {

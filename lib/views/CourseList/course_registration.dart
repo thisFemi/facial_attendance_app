@@ -78,6 +78,7 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
                           setState(() {
                             selectedSession = value;
                             semesters = availableSemesters(selectedSession!);
+                            selectedSemester = null;
                             courses.clear();
                             // selectedSemester =
                             //     semesters.isNotEmpty ? semesters.first : null;
@@ -129,16 +130,18 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              selectedSemester!=null? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Open modal sheet to add/remove courses
-                    _showAddCourseModal();
-                  },
-                  child: const Text("Add Course"),
-                ),
-              ):SizedBox.shrink(),
+              selectedSemester != null
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Open modal sheet to add/remove courses
+                          _showAddCourseModal();
+                        },
+                        child: const Text("Add Course"),
+                      ),
+                    )
+                  : SizedBox.shrink(),
               const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
@@ -168,34 +171,39 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
                           ));
                     }),
               ),
-        courses.isNotEmpty?      Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 10,
-                ),
-                child: SizedBox(
-                  height: 50.0,
-                  width: Screen.deviceSize(context).width * 0.85,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: AppColors.black,
-                    ),
-                    child: _isLoading
-                        ? const SpinKitThreeBounce(
-                            color: AppColors.offwhite, size: 40)
-                        : const Text(
-                            'Submit',
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontFamily: 'Raleway-SemiBold',
-                            ),
+              courses.isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 10,
+                      ),
+                      child: SizedBox(
+                        height: 50.0,
+                        width: Screen.deviceSize(context).width * 0.85,
+                        child: TextButton(
+                          onPressed: () {
+                            addCoursesToAcademicRecord(
+                                courses, selectedSession!, selectedSemester!);
+
+                            Navigator.pop(context);
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: AppColors.black,
                           ),
-                  ),
-                ),
-              ):SizedBox.shrink()
+                          child: _isLoading
+                              ? const SpinKitThreeBounce(
+                                  color: AppColors.offwhite, size: 40)
+                              : const Text(
+                                  'Submit',
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    fontFamily: 'Raleway-SemiBold',
+                                  ),
+                                ),
+                        ),
+                      ),
+                    )
+                  : SizedBox.shrink()
             ],
           ),
         ),
@@ -204,63 +212,66 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
   }
 
   List<Session> availableSessions() {
-    if (APIs.academicRecords == null) {
-      return defaultSessions;
-    } else {
-      List<Session> filteredSessions = List.from(defaultSessions);
-
-      for (int i = 0; i < APIs.academicRecords!.sessions.length; i++) {
-        Session session = APIs.academicRecords!.sessions[i];
-        if (session.semesters.length == 2) {
-          // Exclude this session
-          filteredSessions
-              .removeWhere((s) => s.sessionYear == session.sessionYear);
-          continue;
-        }
-
-        // Check if the session has 1 semester
-        bool hasSemester1 =
-            session.semesters.any((semester) => semester.semesterNumber == 1);
-        bool hasSemester2 =
-            session.semesters.any((semester) => semester.semesterNumber == 2);
-
-        // If it has both semesters, exclude this session
-        if (hasSemester1 && hasSemester2) {
-          continue;
-        }
-
-        // If it has only 1 semester, include the missing semester
-        if (hasSemester2 && !hasSemester1) {
-          filteredSessions[i] = Session(
-            sessionYear: session.sessionYear,
-            semesters: [Semester(semesterNumber: 1, courses: [])],
-          );
-        } else if (hasSemester1 && !hasSemester2) {
-          filteredSessions[i] = Session(
-            sessionYear: session.sessionYear,
-            semesters: [Semester(semesterNumber: 2, courses: [])],
-          );
-        } else {
-          // If it's an empty session, include both semesters
-
-          filteredSessions[i] = Session(
-            sessionYear: session.sessionYear,
-            semesters: [
-              Semester(semesterNumber: 1, courses: []),
-              Semester(semesterNumber: 2, courses: []),
-            ],
-          );
-        }
-      }
-
-      // Add default sessions only if no matching sessions found
-      if (filteredSessions.isEmpty) {
-        filteredSessions.addAll(defaultSessions);
-      }
-
-      return filteredSessions;
-    }
+    return defaultSessions;
   }
+  // List<Session> availableSessions() {
+  //   if (APIs.academicRecords == null) {
+  //     return defaultSessions;
+  //   } else {
+  //     List<Session> filteredSessions = List.from(defaultSessions);
+
+  //     for (int i = 0; i < APIs.academicRecords!.sessions.length; i++) {
+  //       Session session = APIs.academicRecords!.sessions[i];
+  //       if (session.semesters.length == 2) {
+  //         // Exclude this session
+  //         filteredSessions
+  //             .removeWhere((s) => s.sessionYear == session.sessionYear);
+  //         continue;
+  //       }
+
+  //       // Check if the session has 1 semester
+  //       bool hasSemester1 =
+  //           session.semesters.any((semester) => semester.semesterNumber == 1);
+  //       bool hasSemester2 =
+  //           session.semesters.any((semester) => semester.semesterNumber == 2);
+
+  //       // If it has both semesters, exclude this session
+  //       if (hasSemester1 && hasSemester2) {
+  //         continue;
+  //       }
+
+  //       // If it has only 1 semester, include the missing semester
+  //       if (hasSemester2 && !hasSemester1) {
+  //         filteredSessions[i] = Session(
+  //           sessionYear: session.sessionYear,
+  //           semesters: [Semester(semesterNumber: 1, courses: [])],
+  //         );
+  //       } else if (hasSemester1 && !hasSemester2) {
+  //         filteredSessions[i] = Session(
+  //           sessionYear: session.sessionYear,
+  //           semesters: [Semester(semesterNumber: 2, courses: [])],
+  //         );
+  //       } else {
+  //         // If it's an empty session, include both semesters
+
+  //         filteredSessions[i] = Session(
+  //           sessionYear: session.sessionYear,
+  //           semesters: [
+  //             Semester(semesterNumber: 1, courses: []),
+  //             Semester(semesterNumber: 2, courses: []),
+  //           ],
+  //         );
+  //       }
+  //     }
+
+  //     // Add default sessions only if no matching sessions found
+  //     if (filteredSessions.isEmpty) {
+  //       filteredSessions.addAll(defaultSessions);
+  //     }
+
+  //     return filteredSessions;
+  //   }
+  // }
 
   bool isSemesterSelected(Session selectedSession, int selectedSemester) {
     // Check if the selected semester exists for the selected session
@@ -276,16 +287,8 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
 
   List<int> availableSemesters(Session selectedSession) {
     // If the selected session has both semesters, return [1, 2]
-    if (selectedSession.semesters.isEmpty) {
-      return defaultSemester;
-    }
-    if (selectedSession.semesters.length == 2) {
-      return [];
-    }
 
-    // If the selected session has only one semester, return the other semester
-    int existingSemester = selectedSession.semesters.first.semesterNumber;
-    return [3 - existingSemester];
+    return defaultSemester;
   }
 
   Widget buildSessionDropdown({
@@ -480,4 +483,41 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
     Session(sessionYear: "2027/2028", semesters: []),
     Session(sessionYear: "2028/2029", semesters: []),
   ];
+  void addCoursesToAcademicRecord(
+      List<Course> courses, Session selectedSession, int selectedSemester) {
+    // Find the index of the selected session in the academic records
+    int sessionIndex = APIs.academicRecords!.sessions.indexWhere(
+        (session) => session.sessionYear == selectedSession.sessionYear);
+
+    if (sessionIndex != -1) {
+      // Check if the selected semester already exists in the selected session
+      bool semesterExists = APIs
+          .academicRecords!.sessions[sessionIndex].semesters
+          .any((semester) => semester.semesterNumber == selectedSemester);
+
+      if (!semesterExists) {
+        // Add the semester with the selected courses to the selected session
+        APIs.academicRecords!.sessions[sessionIndex].semesters.add(Semester(
+          semesterNumber: selectedSemester,
+          courses: List.from(courses),
+        ));
+        print('added to existing session');
+      } else {
+        // Semester already exists, you may handle this case if needed
+        throw ('semester already exists');
+      }
+    } else {
+      // If the session is not available, add it with the selected semester and courses
+      APIs.academicRecords!.sessions.add(Session(
+        sessionYear: selectedSession.sessionYear,
+        semesters: [
+          Semester(
+            semesterNumber: selectedSemester,
+            courses: List.from(courses),
+          ),
+        ],
+      ));
+      print('added new session');
+    }
+  }
 }

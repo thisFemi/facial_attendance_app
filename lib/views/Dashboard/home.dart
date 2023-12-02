@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   width: Screen.deviceSize(context).height * .05,
                   fit: BoxFit.cover,
                   imageUrl:
-                      "${APIs.userInfo.userInfo != null ? APIs.userInfo.userInfo!.imgUrl : ""}",
+                      APIs.userInfo.userInfo != null ? APIs.userInfo.userInfo!.imgUrl : "",
                   errorWidget: (context, url, error) => const CircleAvatar(
                     backgroundColor: AppColors.black,
                     child: Icon(
@@ -136,21 +136,21 @@ class _HomeScreenState extends State<HomeScreen> {
               stream: APIs.fetchAcademicData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator(); // Loading indicator while waiting for data
+                  return const Center(child: CircularProgressIndicator()); // Loading indicator while waiting for data
                 }
 
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}');
+                  return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
                 if (!snapshot.hasData || !snapshot.data!.exists) {
                   return Card(
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5)),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 30.0),
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 30.0),
                         child: Center(
-                            child: const Text('Academic records not found!')),
+                            child: Text('Academic records not found!')),
                       ));
                 }
                 final studentData = UserData.fromJson(snapshot.data!.data()!);
@@ -179,9 +179,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               lineWidth: 15.0,
                               circularStrokeCap: CircularStrokeCap.round,
                               percent: 0.50,
-                              center: new Text(
+                              center: const Text(
                                 "50%",
-                                style: new TextStyle(
+                                style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20.0),
                               ),
