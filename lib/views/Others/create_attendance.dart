@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 
+import '../../api/apis.dart';
 import '../../models/attendance_models.dart';
 import '../../utils/Common.dart';
 import '../../utils/colors.dart';
@@ -198,8 +202,19 @@ class _CreateAttendanceScreenState extends State<CreateAttendanceScreen> {
                       height: 50.0,
                       width: Screen.deviceSize(context).width * 0.85,
                       child: TextButton(
-                        onPressed: () {
-                          // Navigator.pop(context);
+                        onPressed: () async {
+                          await createAttendane().then((value) {
+                            if (value != null) {
+                              Dialogs.showSuccessDialog(
+                                  context,
+                                  'Successful',
+                                  'Attendance Verification Code is ${value}',
+                                  "Continue", () {
+                                Navigator.pop(context);
+                                Navigator.pop(context);
+                              });
+                            }
+                          });
                         },
                         style: TextButton.styleFrom(
                           backgroundColor: AppColors.black,
@@ -265,5 +280,52 @@ class _CreateAttendanceScreenState extends State<CreateAttendanceScreen> {
       },
     );
     return dateTime;
+  }
+
+  Future<String?> createAttendane() async {
+    if (startTime != null && endTime != null && selectedRange != null) {
+      try {
+        String verificationCode = generateVerificationCode();
+        Position currentPosition =  await APIs.determinePosition();
+        double latitude = currentPosition.latitude;
+        double longitude = currentPosition.longitude;
+        Attendance newAttendance = Attendance(
+            attendanceId: APIs.userInfo.id,
+            lecturerName: APIs.userInfo.name,
+            lecturerId: APIs.userInfo.id,
+            startTime: startTime!,
+            endTime: endTime!,
+            verificationCode: verificationCode,
+            range: selectedRange!,
+            isPresent: false,
+            latitude: latitude,
+            longitude: longitude);
+
+        await APIs.addAttendanceToAcademicRecords(
+            widget.session, widget.semester, widget.course, newAttendance);
+        return verificationCode;
+      } catch (error) {
+        Dialogs.showSnackbar(context, error.toString());
+      }
+    }
+    return null;
+  }
+
+  String generateVerificationCode() {
+    var length = 5 + Random().nextInt(3); // Random length between 5 and 7
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    return String.fromCharCodes(
+      Iterable.generate(
+        length,
+        (_) => chars.codeUnitAt(Random().nextInt(chars.length)),
+      ),
+    );
+  }
+
+  Future<Position> getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+    return position;
   }
 }

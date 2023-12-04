@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../models/attendance_models.dart';
 import '../utils/colors.dart';
 import '../utils/date_util.dart';
+import '../utils/dialogs.dart';
 import '../views/CourseList/students_attendance_list.dart';
 
 class LecturerAttendanceCard extends StatelessWidget {
@@ -76,7 +77,7 @@ class StudentAttendanceCard extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold)),
           trailing: Chip(
               onDeleted: () {
-                onTap;
+                onTap();
               },
               backgroundColor: AppColors.red,
               label: Text(
@@ -112,6 +113,17 @@ class AttendanceCard extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       color: Colors.white,
       child: ListTile(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => StudentAttendanceList(
+                          course: course,
+                          semester: semester,
+                          session: session,
+                          attendance: attendance,
+                        )));
+          },
           title: Text(
             attendance.lecturerName,
             style: TextStyle(
@@ -121,17 +133,6 @@ class AttendanceCard extends StatelessWidget {
           ),
           subtitle: Text(DateUtil.getNormalDate(attendance.startTime)),
           trailing: Chip(
-              onDeleted: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => StudentAttendanceList(
-                              course: course,
-                              semester: semester,
-                              session: session,
-                              attendance: attendance,
-                            )));
-              },
               backgroundColor: open ? AppColors.green : AppColors.red,
               label: Text(
                 open ? "Open" : "Closed",

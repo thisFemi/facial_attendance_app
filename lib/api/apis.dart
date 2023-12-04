@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../models/attendance_models.dart';
 import '../models/dummy.dart';
@@ -51,7 +52,7 @@ class APIs {
       print(userData);
       final user_model.User userDataInfo = user_model.User.fromJson(userData);
       userInfo = userDataInfo;
-      academicRecords = DUMMY.dummyAcademicRecords.last;
+      // academicRecords = DUMMY.dummyAcademicRecords.last;
       print("done");
     } else {
       throw "User Details not found, kindly contact support.";
@@ -80,7 +81,7 @@ class APIs {
       await firestore.collection('users').doc(userUID).set(userData);
       final user_model.User userDataInfo = user_model.User.fromJson(userData);
       userInfo = userDataInfo;
-      academicRecords = DUMMY.dummyAcademicRecords.last;
+      // academicRecords = DUMMY.dummyAcademicRecords.last;
       print("print registration done !");
       //  Navigator.pushAndRemoveUntil(
       //   context,
@@ -103,10 +104,14 @@ class APIs {
 
 //courses
   static Stream<DocumentSnapshot<Map<String, dynamic>>> fetchAcademicData() {
+    String userType = userInfo.userType.name.toLowerCase();
+
+    // Reference to the user's document in the records collection
     return firestore
-        .collection(
-            'yourFirestoreCollection') // Replace with your actual collection
-        .doc('yourDocumentId') // Replace with your actual document ID
+        .collection('records')
+        .doc(userType)
+        .collection(userType == 'staff' ? 'staffs' : 'students')
+        .doc(userInfo.id)
         .snapshots();
   }
 
@@ -183,5 +188,97 @@ class APIs {
     } catch (error) {
       rethrow;
     }
+  }
+
+  static Future<void> registerCourses() async {
+    try {
+      // Reference to the user's document in the records collection
+      String userType = userInfo.userType.name.toLowerCase();
+
+      // Reference to the user's document in the records collection
+      DocumentReference userDocRef = firestore
+          .collection('records')
+          .doc(userType)
+          .collection(userType == 'staff' ? 'staffs' : 'students')
+          .doc(userInfo.id);
+
+      await userDocRef.set({'academicRecords': academicRecords!.toJson()});
+
+      print("Course registration added for a new user");
+
+      // Get the user's document
+    } catch (error) {
+      // Handle errors
+      print('Error registering courses: $error');
+      rethrow;
+    }
+  }
+
+//
+//attendance
+  static Future<void> addAttendanceToAcademicRecords(Session session,
+      Semester semester, Course course, Attendance newAttendance) async {
+    // Ensure academicRecords is not null
+    if (academicRecords != null) {
+      // Create a copy of academicRecords
+      UserData updatedAcademicRecords = academicRecords!;
+
+      // Find the target session
+      int sessionIndex = updatedAcademicRecords.sessions.indexWhere(
+        (userSession) => userSession.sessionYear == session.sessionYear,
+      );
+
+      if (sessionIndex != -1) {
+        // Find the target semester
+        int semesterIndex =
+            updatedAcademicRecords.sessions[sessionIndex].semesters.indexWhere(
+          (userSemester) =>
+              userSemester.semesterNumber == semester.semesterNumber,
+        );
+
+        if (semesterIndex != -1) {
+          // Find the target course
+          int courseIndex = updatedAcademicRecords
+              .sessions[sessionIndex].semesters[semesterIndex].courses
+              .indexWhere(
+            (userCourse) => userCourse.courseId == course.courseId,
+          );
+
+          if (courseIndex != -1) {
+            // Add the newAttendance to the target course in the copied data
+            updatedAcademicRecords.sessions[sessionIndex]
+                .semesters[semesterIndex].courses[courseIndex].attendanceList
+                .add(newAttendance);
+
+            // Update the original academicRecords with the modified copy
+            academicRecords = updatedAcademicRecords;
+
+            print("Attendance added to academicRecords");
+          } else {
+            throw ("Course not found in academicRecords");
+          }
+        } else {
+          throw ("Semester not found in academicRecords");
+        }
+      } else {
+        throw ("Session not found in academicRecords");
+      }
+    } else {
+      throw ("academicRecords is null");
+    }
+  }
+
+  static Future<Position> determinePosition() async {
+    LocationPermission permission;
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.deniedForever) {
+        return Future.error('Location Not Available');
+      }
+    } else {
+      throw Exception('Error');
+    }
+    return await Geolocator.getCurrentPosition();
   }
 }

@@ -71,7 +71,9 @@ class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
                             ? null
                             : () {
                                 addCoursesToAcademicRecord(
-                                    courses, widget.session, widget.semester.semesterNumber);
+                                    courses,
+                                    widget.session,
+                                    widget.semester.semesterNumber);
 
                                 Navigator.pop(context);
                               },
@@ -108,36 +110,55 @@ class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
     );
   }
 
-void addCoursesToAcademicRecord(
-    List<Course> courses, Session selectedSession, int selectedSemester) {
-  if (APIs.academicRecords == null) {
-    // Handle the case where academicRecords is null (initialize it or show an error)
-    print('Error: academicRecords is null');
-    return;
-  }
+  Future<void> addCoursesToAcademicRecord(List<Course> courses,
+      Session selectedSession, int selectedSemester) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      if (APIs.academicRecords == null) {
+        // Handle the case where academicRecords is null (initialize it or show an error)
+        APIs.academicRecords!.sessions.add(Session(
+          sessionYear: selectedSession.sessionYear,
+          semesters: [
+            Semester(
+              semesterNumber: selectedSemester,
+              courses: List.from(courses),
+            ),
+          ],
+        ));
+      } else {
+        // Find the index of the selected session in the academic records
+        int sessionIndex = APIs.academicRecords!.sessions.indexWhere(
+            (session) => session.sessionYear == selectedSession.sessionYear);
 
-  // Find the index of the selected session in the academic records
-  int sessionIndex = APIs.academicRecords!.sessions.indexWhere(
-      (session) => session.sessionYear == selectedSession.sessionYear);
+        if (sessionIndex != -1) {
+          List<Semester> semesters =
+              APIs.academicRecords!.sessions[sessionIndex].semesters;
 
-  if (sessionIndex != -1) {
-  List<Semester> semesters = APIs.academicRecords!.sessions[sessionIndex].semesters;
-  
-  if (selectedSemester < semesters.length) {
-    // Add the semester with the selected courses to the selected session
-    semesters[selectedSemester-1].courses = courses;
-    print('added to existing session');
-  } else {
-    // Handle the case where selectedSemester is out of range
-    print('Error: Invalid semester index');
+          if (selectedSemester < semesters.length) {
+            // Add the semester with the selected courses to the selected session
+            semesters[selectedSemester - 1].courses = courses;
+            print('added to existing session');
+          } else {
+            // Handle the case where selectedSemester is out of range
+            throw ('Error: Invalid semester index');
+          }
+        } else {
+          // If the session is not available, add it with the selected semester and courses
+          throw ('Error: Session not found');
+        }
+      }
+      await APIs.registerCourses();
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (eror) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-} 
-
- else {
-    // If the session is not available, add it with the selected semester and courses
-    throw('Error: Session not found');
-  }
-}
 
   void _showAddCourseModal(BuildContext context) {
     TextEditingController _title = TextEditingController();

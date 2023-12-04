@@ -7,6 +7,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:slide_countdown/slide_countdown.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 
+import '../api/apis.dart';
 import '../utils/Common.dart';
 import '../views/Others/attendance_capture_screen.dart';
 
@@ -33,7 +34,7 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
   Future<bool> isUserWithinDistance() async {
     try {
       // Get the user's current location
-      Position userLocation = await Geolocator.getCurrentPosition();
+      Position userLocation = await APIs.determinePosition();
 
       // Calculate the distance between the user and the attendance location
       double distanceInMeters = await Geolocator.distanceBetween(
@@ -52,6 +53,8 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
       return false; // Handle the error appropriately
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {

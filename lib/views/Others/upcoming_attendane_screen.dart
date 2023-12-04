@@ -2,13 +2,20 @@ import 'package:attend_sense/utils/colors.dart';
 import 'package:attend_sense/widgets/custom_appBar.dart';
 import 'package:attend_sense/widgets/upcoming_card.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 import '../../api/apis.dart';
 import '../../models/attendance_models.dart';
 
-class UpcomingAttendanceScreen extends StatelessWidget {
+class UpcomingAttendanceScreen extends StatefulWidget {
   const UpcomingAttendanceScreen({Key? key});
 
+  @override
+  State<UpcomingAttendanceScreen> createState() => _UpcomingAttendanceScreenState();
+}
+
+class _UpcomingAttendanceScreenState extends State<UpcomingAttendanceScreen> {
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -5,7 +5,7 @@ class Attendance {
   DateTime startTime;
   DateTime endTime;
   String verificationCode;
-double range;
+  double range;
   bool isPresent;
   double latitude; // New property
   double longitude; // New property
@@ -39,7 +39,8 @@ double range;
       longitude: json['longitude'], // Replace with the actual key in your JSON
       students: json['students'] != null
           ? List<StudentData>.from(
-              json['students'].map((studentJson) => StudentData.fromJson(studentJson)),
+              json['students']
+                  .map((studentJson) => StudentData.fromJson(studentJson)),
             )
           : null,
     );
@@ -55,8 +56,10 @@ double range;
       'verificationCode': verificationCode,
       'range': range,
       'isPresent': isPresent,
-      'latitude': latitude, // Replace with the actual key you want to use in JSON
-      'longitude': longitude, // Replace with the actual key you want to use in JSON
+      'latitude':
+          latitude, // Replace with the actual key you want to use in JSON
+      'longitude':
+          longitude, // Replace with the actual key you want to use in JSON
       'students': students?.map((student) => student.toJson()).toList(),
     };
   }
@@ -111,7 +114,7 @@ class Course {
 
     int presentCount =
         attendanceList.where((attendance) => attendance.isPresent).length;
-    double percentage = (presentCount / attendanceList.length) * 100;
+    double percentage = (presentCount / attendanceList.length);
 
     return percentage;
   }
@@ -150,7 +153,7 @@ class Semester {
   // Factory constructor to create a Semester object from a Map (JSON)
   factory Semester.fromJson(Map<String, dynamic> json) {
     return Semester(
-      semesterNumber: json['semesterNumber'] as int,
+      semesterNumber: json['semesterName'] ,
       courses: (json['courses'] as List<dynamic>? ?? [])
           .map((courseJson) => Course.fromJson(courseJson))
           .toList(),

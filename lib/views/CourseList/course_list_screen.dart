@@ -51,7 +51,7 @@ class CourseScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Total Registred Courses : ${semester.courses.length}",
+              "Total Registered Courses : ${semester.courses.length}",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
@@ -66,23 +66,26 @@ class CourseScreen extends StatelessWidget {
                     final course = semester.courses[index];
                     return CourseCard(
                         progress: course.calculateAttendancePercentage(),
-                        showPecentage: true,
+                        showPecentage:!isLecturer? true:false,
                         onTap: () {
-                          if (!isLecturer) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => CourseAttendanceScreen(
-                                          attendances: course.attendanceList,
-                                        )));
-                          } else {
-                            Navigator.push(
+                       
+                          if (isLecturer) {
+                            print("here");
+                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (_) => AttendanceList(
                                           course: course,
                                           semester: semester,
                                           session: session,
+                                        )));
+                          
+                          } else {
+                             Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (_) => CourseAttendanceScreen(
+                                          attendances: course.attendanceList,
                                         )));
                           }
                         },

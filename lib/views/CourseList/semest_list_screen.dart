@@ -79,7 +79,7 @@ class SemesterBigCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "${semester} Semester",
+                "${semester.semesterNumber} Semester",
                 style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
               ),
               Text(

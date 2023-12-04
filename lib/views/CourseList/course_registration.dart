@@ -181,12 +181,13 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
                         height: 50.0,
                         width: Screen.deviceSize(context).width * 0.85,
                         child: TextButton(
-                          onPressed: () {
-                            addCoursesToAcademicRecord(
-                                courses, selectedSession!, selectedSemester!);
-
-                            Navigator.pop(context);
-                          },
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  await addCoursesToAcademicRecord(courses,
+                                          selectedSession!, selectedSemester!)
+                                      .then((value) => Navigator.pop(context));
+                                },
                           style: TextButton.styleFrom(
                             backgroundColor: AppColors.black,
                           ),
@@ -214,64 +215,6 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
   List<Session> availableSessions() {
     return defaultSessions;
   }
-  // List<Session> availableSessions() {
-  //   if (APIs.academicRecords == null) {
-  //     return defaultSessions;
-  //   } else {
-  //     List<Session> filteredSessions = List.from(defaultSessions);
-
-  //     for (int i = 0; i < APIs.academicRecords!.sessions.length; i++) {
-  //       Session session = APIs.academicRecords!.sessions[i];
-  //       if (session.semesters.length == 2) {
-  //         // Exclude this session
-  //         filteredSessions
-  //             .removeWhere((s) => s.sessionYear == session.sessionYear);
-  //         continue;
-  //       }
-
-  //       // Check if the session has 1 semester
-  //       bool hasSemester1 =
-  //           session.semesters.any((semester) => semester.semesterNumber == 1);
-  //       bool hasSemester2 =
-  //           session.semesters.any((semester) => semester.semesterNumber == 2);
-
-  //       // If it has both semesters, exclude this session
-  //       if (hasSemester1 && hasSemester2) {
-  //         continue;
-  //       }
-
-  //       // If it has only 1 semester, include the missing semester
-  //       if (hasSemester2 && !hasSemester1) {
-  //         filteredSessions[i] = Session(
-  //           sessionYear: session.sessionYear,
-  //           semesters: [Semester(semesterNumber: 1, courses: [])],
-  //         );
-  //       } else if (hasSemester1 && !hasSemester2) {
-  //         filteredSessions[i] = Session(
-  //           sessionYear: session.sessionYear,
-  //           semesters: [Semester(semesterNumber: 2, courses: [])],
-  //         );
-  //       } else {
-  //         // If it's an empty session, include both semesters
-
-  //         filteredSessions[i] = Session(
-  //           sessionYear: session.sessionYear,
-  //           semesters: [
-  //             Semester(semesterNumber: 1, courses: []),
-  //             Semester(semesterNumber: 2, courses: []),
-  //           ],
-  //         );
-  //       }
-  //     }
-
-  //     // Add default sessions only if no matching sessions found
-  //     if (filteredSessions.isEmpty) {
-  //       filteredSessions.addAll(defaultSessions);
-  //     }
-
-  //     return filteredSessions;
-  //   }
-  // }
 
   bool isSemesterSelected(Session selectedSession, int selectedSemester) {
     // Check if the selected semester exists for the selected session
@@ -483,41 +426,78 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
     Session(sessionYear: "2027/2028", semesters: []),
     Session(sessionYear: "2028/2029", semesters: []),
   ];
-  void addCoursesToAcademicRecord(
-      List<Course> courses, Session selectedSession, int selectedSemester) {
-    // Find the index of the selected session in the academic records
-    int sessionIndex = APIs.academicRecords!.sessions.indexWhere(
-        (session) => session.sessionYear == selectedSession.sessionYear);
+  Future<void> addCoursesToAcademicRecord(List<Course> courses,
+      Session selectedSession, int selectedSemester) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+      // Find the index of the selected session in the academic records
+      if (APIs.academicRecords == null) {
+        print("acdemcic is null");
+        APIs.academicRecords ??= UserData(
+          matricId: APIs.userInfo.id,
+          studentName: APIs.userInfo.name,
+          studentId: APIs.userInfo.id,
+          sessions: [
+            Session(
+              sessionYear: selectedSession.sessionYear,
+              semesters: [
+                Semester(
+                  semesterNumber: selectedSemester,
+                  courses: List.from(courses),
+                ),
+              ],
+            )
+          ],
+        );
 
-    if (sessionIndex != -1) {
-      // Check if the selected semester already exists in the selected session
-      bool semesterExists = APIs
-          .academicRecords!.sessions[sessionIndex].semesters
-          .any((semester) => semester.semesterNumber == selectedSemester);
-
-      if (!semesterExists) {
-        // Add the semester with the selected courses to the selected session
-        APIs.academicRecords!.sessions[sessionIndex].semesters.add(Semester(
-          semesterNumber: selectedSemester,
-          courses: List.from(courses),
-        ));
-        print('added to existing session');
+        print("Added finshed");
       } else {
-        // Semester already exists, you may handle this case if needed
-        throw ('semester already exists');
+        int sessionIndex = APIs.academicRecords!.sessions.indexWhere(
+            (session) => session.sessionYear == selectedSession.sessionYear);
+
+        if (sessionIndex != -1) {
+          // Check if the selected semester already exists in the selected session
+          bool semesterExists = APIs
+              .academicRecords!.sessions[sessionIndex].semesters
+              .any((semester) => semester.semesterNumber == selectedSemester);
+
+          if (!semesterExists) {
+            // Add the semester with the selected courses to the selected session
+            APIs.academicRecords!.sessions[sessionIndex].semesters.add(Semester(
+              semesterNumber: selectedSemester,
+              courses: List.from(courses),
+            ));
+
+            print('added to existing session');
+          } else {
+            // Semester already exists, you may handle this case if needed
+            throw ('semester already exists');
+          }
+        } else {
+          // If the session is not available, add it with the selected semester and courses
+          APIs.academicRecords!.sessions.add(Session(
+            sessionYear: selectedSession.sessionYear,
+            semesters: [
+              Semester(
+                semesterNumber: selectedSemester,
+                courses: List.from(courses),
+              ),
+            ],
+          ));
+          print('added new session');
+        }
       }
-    } else {
-      // If the session is not available, add it with the selected semester and courses
-      APIs.academicRecords!.sessions.add(Session(
-        sessionYear: selectedSession.sessionYear,
-        semesters: [
-          Semester(
-            semesterNumber: selectedSemester,
-            courses: List.from(courses),
-          ),
-        ],
-      ));
-      print('added new session');
+      await APIs.registerCourses();
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      Dialogs.showSnackbar(context, error.toString());
     }
   }
 }

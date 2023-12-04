@@ -8,6 +8,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 import '../../api/apis.dart';
 import '../../models/attendance_models.dart';
 import '../../models/dummy.dart';
+import '../../models/user_model.dart';
 import '../../utils/Common.dart';
 import '../../utils/colors.dart';
 import '../../widgets/notification_icon.dart';
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     initTodos();
-   // APIs.academicRecords = DUMMY.dummyAcademicRecords.last;
+    // APIs.academicRecords = DUMMY.dummyAcademicRecords.last;
     super.initState();
   }
 
@@ -55,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLecturer = APIs.userInfo.userType == UserType.staff;
     return Container(
       padding: const EdgeInsets.only(top: 40, left: 20, right: 20),
       width: Screen.deviceSize(context).width,
@@ -72,8 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: AppColors.black,
                   width: Screen.deviceSize(context).height * .05,
                   fit: BoxFit.cover,
-                  imageUrl:
-                      APIs.userInfo.userInfo != null ? APIs.userInfo.userInfo!.imgUrl : "",
+                  imageUrl: APIs.userInfo.userInfo != null
+                      ? APIs.userInfo.userInfo!.imgUrl
+                      : "",
                   errorWidget: (context, url, error) => const CircleAvatar(
                     backgroundColor: AppColors.black,
                     child: Icon(
@@ -136,7 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
               stream: APIs.fetchAcademicData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator()); // Loading indicator while waiting for data
+                  return const Center(
+                      child:
+                          CircularProgressIndicator()); // Loading indicator while waiting for data
                 }
 
                 if (snapshot.hasError) {
@@ -149,11 +154,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(5)),
                       child: const Padding(
                         padding: EdgeInsets.symmetric(vertical: 30.0),
-                        child: Center(
-                            child: Text('Academic records not found!')),
+                        child:
+                            Center(child: Text('Academic records not found!')),
                       ));
                 }
-                final studentData = UserData.fromJson(snapshot.data!.data()!);
+                print(snapshot.data!.data()!['academicRecords']);
+                final studentData = UserData.fromJson(
+                    snapshot.data!.data()!['academicRecords']);
+                print(studentData);
+                APIs.academicRecords = studentData;
 
                 return Column(
                   children: [
@@ -178,9 +187,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               animationDuration: 1200,
                               lineWidth: 15.0,
                               circularStrokeCap: CircularStrokeCap.round,
-                              percent: 0.50,
-                              center: const Text(
-                                "50%",
+                              percent: studentData.getTotalPresent().toDouble(),
+                              center: Text(
+                                "${studentData.getTotalPresent() * 100}%",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 20.0),
@@ -242,57 +251,75 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                                 const Divider(),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(11),
-                                      decoration: const BoxDecoration(
-                                          color: AppColors.black,
-                                          shape: BoxShape.circle),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 5.0),
-                                      child: SizedBox(
-                                        child: Text(
-                                          "Total Present : ${studentData.getTotalPresent()}",
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(11),
-                                      decoration: const BoxDecoration(
-                                          color: AppColors.lightGrey,
-                                          shape: BoxShape.circle),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 5.0),
-                                      child: SizedBox(
-                                        child: Text(
-                                          "Total Absent : ${studentData.getTotalAbsent()}",
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
+                                !isLecturer
+                                    ? Column(
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.all(11),
+                                                decoration: const BoxDecoration(
+                                                    color: AppColors.black,
+                                                    shape: BoxShape.circle),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 5.0),
+                                                child: SizedBox(
+                                                  child: Text(
+                                                    "Total Present : ${studentData.getTotalPresent()}",
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(
+                                            height: 5,
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.all(11),
+                                                decoration: const BoxDecoration(
+                                                    color: AppColors.lightGrey,
+                                                    shape: BoxShape.circle),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    left: 5.0),
+                                                child: SizedBox(
+                                                  child: Text(
+                                                    "Total Absent : ${studentData.getTotalAbsent()}",
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      )
+                                    : SizedBox.shrink()
                               ],
                             )
                           ],
@@ -312,12 +339,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         ListView.builder(
-                            itemCount: 7,
+                            itemCount: studentData
+                                .sessions.last.semesters.last.courses.length,
                             shrinkWrap: true,
                             physics: const BouncingScrollPhysics(),
                             itemBuilder: (ctx, index) {
-                              final course = studentData.sessions.first
-                                  .semesters.first.courses[index];
+                              final course =  studentData
+                                .sessions.last.semesters.last.courses[index];
                               return CourseCard(
                                   progress:
                                       course.calculateAttendancePercentage(),

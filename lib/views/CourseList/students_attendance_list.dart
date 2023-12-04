@@ -30,7 +30,7 @@ class AttendanceList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Course Attendance: ${course.attendanceList.length}",
+              "Total Attendance: ${course.attendanceList.length}",
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
@@ -78,7 +78,7 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
   List<StudentData> students = [];
   @override
   void initState() {
-    students = widget.attendance.students!;
+    students = widget.attendance.students ?? [];
     super.initState();
   }
 
@@ -87,20 +87,27 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
       setState(() {
         _isLoading = true;
       });
-
-      await APIs.removeStudent(
-              student,
-              widget.session.sessionYear,
-              widget.semester.semesterNumber,
-              widget.course.courseId,
-              APIs.userInfo.id)
-          .then((value) {
-        students
-            .removeWhere((stud) => stud.matricNumber == student.matricNumber);
+      if (APIs.userInfo.id != widget.attendance.lecturerId) {
+        await APIs.removeStudent(
+                student,
+                widget.session.sessionYear,
+                widget.semester.semesterNumber,
+                widget.course.courseId,
+                APIs.userInfo.id)
+            .then((value) {
+          students
+              .removeWhere((stud) => stud.matricNumber == student.matricNumber);
+          setState(() {
+            _isLoading = false;
+          });
+        });
+      } else {
         setState(() {
           _isLoading = false;
         });
-      });
+        Dialogs.showSnackbar(
+            context, "You're not eligible to perform operation");
+      }
     } catch (error) {
       setState(() {
         _isLoading = false;
@@ -113,11 +120,35 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        centerTitle: true,
-        context: context,
-        showArrowBack: true,
-        title: "Records",
-      ),
+          centerTitle: true,
+          context: context,
+          showArrowBack: true,
+          title: "Records",
+          actions: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                 vertical: 10,
+              ),
+              child: SizedBox(
+                height: 35.0,
+                // width: Screen.deviceSize(context).width * 0.85,
+                child: TextButton(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: AppColors.black,
+                  ),
+                  child: Text(
+                    'Export',
+                    style: TextStyle(
+                        color: AppColors.white, fontFamily: 'Raleway-SemiBold'),
+                  ),
+                ),
+              ),
+            ),
+          ]),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -148,70 +179,86 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
                             onTap: () {
                               showDialog(
                                   context: context,
-                                  builder: (context) => AlertDialog(
-                                        title: Text("Remove Student"),
-                                        content: Text(
-                                            'Are you sure you want to remove ${student.studentName} from attendance?'),
-                                        actions: [
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 40,
-                                            ),
-                                            child: SizedBox(
-                                              height: 35.0,
-                                              // width: Screen.deviceSize(context).width * 0.85,
-                                              child: TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                                style: TextButton.styleFrom(
-                                                  backgroundColor:
-                                                      AppColors.white,
+                                  builder: (context) => SimpleDialog(
+                                        alignment: Alignment.center,
+                                        contentPadding: EdgeInsets.all(10),
+                                        title: Text("Remove Student?"),
+                                        children: [
+                                          Text(
+                                            'Are you sure you want to remove ${student.studentName} from attendance?',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          SizedBox(height: 10),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: [
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  // vertical: 40,
                                                 ),
-                                                child: Text(
-                                                  'Cancel',
-                                                  style: TextStyle(
-                                                      color: AppColors.black,
-                                                      fontFamily:
-                                                          'Raleway-SemiBold'),
+                                                child: SizedBox(
+                                                  height: 35.0,
+                                                  // width: Screen.deviceSize(context).width * 0.85,
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    style: TextButton.styleFrom(
+                                                      backgroundColor:
+                                                          AppColors.white,
+                                                    ),
+                                                    child: Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                          color:
+                                                              AppColors.black,
+                                                          fontFamily:
+                                                              'Raleway-SemiBold'),
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 40,
-                                            ),
-                                            child: SizedBox(
-                                              height: 35.0,
-                                              // width: Screen.deviceSize(context).width * 0.85,
-                                              child: TextButton(
-                                                onPressed: () async {
-                                                  await removeStudent(student);
-                                                  Navigator.pop(context);
-                                                },
-                                                style: TextButton.styleFrom(
-                                                  backgroundColor:
-                                                      AppColors.red,
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 10,
+                                                  // vertical: 40,
                                                 ),
-                                                child: !_isLoading
-                                                    ? const SpinKitThreeBounce(
-                                                        color:
-                                                            AppColors.offwhite,
-                                                        size: 30)
-                                                    : const Text(
-                                                        'Remove',
-                                                        style: TextStyle(
-                                                            color:
-                                                                AppColors.white,
-                                                            fontFamily:
-                                                                'Raleway-SemiBold'),
-                                                      ),
+                                                child: SizedBox(
+                                                  height: 35.0,
+                                                  // width: Screen.deviceSize(context).width * 0.85,
+                                                  child: TextButton(
+                                                    onPressed: () async {
+                                                      await removeStudent(
+                                                          student);
+                                                      Navigator.pop(context);
+                                                    },
+                                                    style: TextButton.styleFrom(
+                                                      backgroundColor:
+                                                          AppColors.red,
+                                                    ),
+                                                    child: _isLoading
+                                                        ? const SpinKitThreeBounce(
+                                                            color: AppColors
+                                                                .offwhite,
+                                                            size: 30)
+                                                        : const Text(
+                                                            'Remove',
+                                                            style: TextStyle(
+                                                                color: AppColors
+                                                                    .white,
+                                                                fontFamily:
+                                                                    'Raleway-SemiBold'),
+                                                          ),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
+                                            ],
                                           ),
+                                          SizedBox(height: 10),
                                         ],
                                       ));
                             },
