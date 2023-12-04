@@ -51,14 +51,13 @@ class _LecturerListOfAttendanceState extends State<LecturerListOfAttendance> {
       backgroundColor: AppColors.white,
       body: Padding(
         padding: EdgeInsets.all(16),
-        child: Expanded(
-            child: ListView.builder(
-                itemCount: sessions.length,
-                shrinkWrap: true,
-                itemBuilder: (ctx, index) {
-                  final sesion = sessions[index];
-                  return AttendanceSessionCard(session: sesion);
-                })),
+        child: ListView.builder(
+            itemCount: sessions.length,
+            shrinkWrap: true,
+            itemBuilder: (ctx, index) {
+              final sesion = sessions[index];
+              return AttendanceSessionCard(session: sesion);
+            }),
       ),
     );
   }

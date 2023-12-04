@@ -50,9 +50,83 @@ class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
                   course: course,
                   onDelete: () {
                     // Remove the course from the list
-                    setState(() {
-                      courses.removeAt(index);
-                    });
+                    showDialog(
+                        context: context,
+                        builder: (context) => SimpleDialog(
+                                alignment: Alignment.center,
+                                contentPadding: EdgeInsets.all(10),
+                                title: Text("Remove Student?"),
+                                children: [
+                                  Text(
+                                    'Are you sure you want to remove ${course.courseId} from course list?',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            // vertical: 40,
+                                          ),
+                                          child: SizedBox(
+                                            height: 35.0,
+                                            // width: Screen.deviceSize(context).width * 0.85,
+                                            child: TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              style: TextButton.styleFrom(
+                                                backgroundColor:
+                                                    AppColors.white,
+                                              ),
+                                              child: Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                    color: AppColors.black,
+                                                    fontFamily:
+                                                        'Raleway-SemiBold'),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            // vertical: 40,
+                                          ),
+                                          child: SizedBox(
+                                            height: 35.0,
+                                            // width: Screen.deviceSize(context).width * 0.85,
+                                            child: TextButton(
+                                              onPressed: () async {
+                                                courses.removeAt(index);
+                                             
+                                                await APIs.registerCourses();
+                                                   setState(() {});
+                                                Navigator.pop(context);
+                                              },
+                                              style: TextButton.styleFrom(
+                                                backgroundColor: AppColors.red,
+                                              ),
+                                              child: _isLoading
+                                                  ? const SpinKitThreeBounce(
+                                                      color: AppColors.offwhite,
+                                                      size: 30)
+                                                  : const Text(
+                                                      'Remove',
+                                                      style: TextStyle(
+                                                          color:
+                                                              AppColors.white,
+                                                          fontFamily:
+                                                              'Raleway-SemiBold'),
+                                                    ),
+                                            ),
+                                          ),
+                                        )
+                                      ])
+                                ]));
                   },
                 );
               },
