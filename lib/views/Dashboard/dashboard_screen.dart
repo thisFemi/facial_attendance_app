@@ -60,18 +60,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
           color: Colors.white,
         ),
         onPressed: () {
-          if (APIs.userInfo.userType != UserType.staff) {
+          if (APIs.userInfo.userType == UserType.staff) {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const LecturerListOfAttendance(
+                    builder: (_) =>  LecturerListOfAttendance(
                         // user: widget.user,
                         )));
           } else {
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => const UpcomingAttendanceScreen(
+                    builder: (_) =>  UpcomingAttendanceScreen(
                         // user: widget.user,
                         )));
           }

@@ -2,11 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../../api/apis.dart';
 import '../../utils/Common.dart';
 import '../../utils/colors.dart';
 import '../Others/coming_soon_screen.dart';
-
-
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -19,38 +18,39 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   void initState() {
     super.initState();
-   // APIs.getSelfInfo();APIs.fetchApplication();
+    // APIs.getSelfInfo();APIs.fetchApplication();
     print('updated');
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       child: Container(
         height: Screen.deviceSize(context).height,
         color: AppColors.white,
-        padding: EdgeInsets.only(top: 40, bottom: 5),
+        padding: const EdgeInsets.only(top: 40, bottom: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               alignment: Alignment.center,
               width: Screen.deviceSize(context).width,
-              padding: EdgeInsets.only(bottom: 10, top: 0),
-              decoration: BoxDecoration(
-                  border: Border(bottom: BorderSide(width: .5, color: AppColors.grey))),
+              padding: const EdgeInsets.only(bottom: 10, top: 0),
+              decoration: const BoxDecoration(
+                  border: Border(
+                      bottom: BorderSide(width: .5, color: AppColors.grey))),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     'Profile',
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   ClipRRect(
@@ -60,30 +60,35 @@ class _SettingScreenState extends State<SettingScreen> {
                       height: Screen.deviceSize(context).height * .08,
                       width: Screen.deviceSize(context).height * .08,
                       fit: BoxFit.cover,
-                      imageUrl: "APIs.userInfo.image",
+                      imageUrl: APIs.userInfo.userInfo == null
+                          ? ""
+                          : APIs.userInfo.userInfo!.imgUrl,
                       // placeholder: (context, url) => CircularProgressIndicator(
                       //   color: color3,
                       // ),
-                      errorWidget: (context, url, error) => CircleAvatar(
+                      errorWidget: (context, url, error) => const CircleAvatar(
                         child: Icon(CupertinoIcons.person),
                       ),
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5,
                   ),
                   Text(
-                    "APIs.userInfo.name",
-                    style: TextStyle(
+                    APIs.userInfo.name,
+                    style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 3,
                   ),
                   Text(
-                   " APIs.userInfo.email",
+                    APIs.userInfo.userInfo != null &&
+                            APIs.userInfo.userInfo!.matricNumber != ""
+                        ? APIs.userInfo.userInfo!.matricNumber
+                        : APIs.userInfo.email,
                     style: TextStyle(
                         color: AppColors.grey,
                         fontSize: 14,
@@ -104,65 +109,14 @@ class _SettingScreenState extends State<SettingScreen> {
               //   setState(() {});
               // }
             }),
-            profileTiles(CupertinoIcons.bell, 'Notification', () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => ComingSoon(
-                        label: 'Notification ',
-                      )));
-            }),
-         
-              // ListTile(
-              //       minLeadingWidth: 2,
-              //       leading: Icon(
-              //         CupertinoIcons.checkmark_seal,
-              //         color: color3,
-              //       ),
-              //       title: Text(
-              //         'Medical License Verification',
-              //         style: TextStyle(fontWeight: FontWeight.bold),
-              //       ),
-              //       trailing: Container(
-              //         child: APIs.userInfo.doctorContactInfo!.isVerified
-              //             ? Chip(
-              //                 backgroundColor: color10,
-              //                 padding: EdgeInsets.all(5),
-              //                 label: Text(
-              //                   'Verified',
-              //                   style: TextStyle(
-              //                       fontSize: 12, fontWeight: FontWeight.bold),
-              //                 ))
-              //             : Chip(
-              //                 backgroundColor: AppColors.red,
-              //                 padding: EdgeInsets.all(5),
-              //                 label: Text(
-              //                   'Not verified',
-              //                   style: TextStyle(
-              //                       color: AppColors.white,
-              //                       fontSize: 12,
-              //                       fontWeight: FontWeight.bold),
-              //                 ),
-              //               ),
-              //       ),
-              //       onTap: () {
-              //         // Navigator.push(
-              //         //     context,
-              //         //     MaterialPageRoute(
-              //         //         builder: (_) =>
-              //         //             PractitionerRegistrationScreen(
-              //         //               APIs.userInfo,
-              //         //             )));
-              //       }
-              //     ),
 
-            profileTiles(CupertinoIcons.phone, 'Help center', () {
+            profileTiles(Icons.contact_support_rounded, 'Help center', () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (_) => ComingSoon(
-                        label: 'Help Center ',
-                      )));
+                            label: 'Support ',
+                          )));
             }),
             // profileTiles(CupertinoIcons.person_3, 'Invite friends', () {}),
             profileTiles(CupertinoIcons.info, 'App info', () {
@@ -170,19 +124,20 @@ class _SettingScreenState extends State<SettingScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (_) => ComingSoon(
-                        label: 'App Info',
-                      )));
+                            label: 'App Info',
+                          )));
             }),
 
             ListTile(
               minLeadingWidth: 2,
-              leading: Icon(
+              leading: const Icon(
                 Icons.logout,
                 color: AppColors.red,
               ),
-              title: Text(
+              title: const Text(
                 'Log Out',
-                style: TextStyle(color: AppColors.red, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: AppColors.red, fontWeight: FontWeight.bold),
               ),
               onTap: () {
                 logoutDialog();
@@ -207,9 +162,9 @@ class _SettingScreenState extends State<SettingScreen> {
       ),
       title: Text(
         title,
-        style: TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
-      trailing: Icon(
+      trailing: const Icon(
         CupertinoIcons.forward,
         color: AppColors.lightGrey,
       ),
@@ -223,15 +178,15 @@ class _SettingScreenState extends State<SettingScreen> {
       builder: (_) {
         return AlertDialog(
           alignment: Alignment.center,
-
-          actionsPadding: EdgeInsets.only(bottom: 11, left: 10, right: 10),
-          titlePadding: EdgeInsets.only(top: 20, bottom: 1),
-          title: Text(
+          actionsPadding:
+              const EdgeInsets.only(bottom: 11, left: 10, right: 10),
+          titlePadding: const EdgeInsets.only(top: 20, bottom: 1),
+          title: const Text(
             "Logout",
             textAlign: TextAlign.center,
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          content: Text(
+          content: const Text(
             "Are you sure you want to logout this accoount?.You will loose all information and can't undo this action.",
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.grey),
@@ -245,15 +200,15 @@ class _SettingScreenState extends State<SettingScreen> {
                   child: TextButton(
                     style: TextButton.styleFrom(
                       backgroundColor: Colors.white,
-                      padding: EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
                             20.0), // Adjust the radius as needed
                       ),
-                      side: BorderSide(color: Colors.grey),
+                      side: const BorderSide(color: Colors.grey),
                     ),
                     // Customize the button's appearance
-                    child: Text(
+                    child: const Text(
                       "Cancel",
                       style: TextStyle(color: AppColors.grey),
                     ),
@@ -262,11 +217,11 @@ class _SettingScreenState extends State<SettingScreen> {
                     },
                   ),
                 ),
-                SizedBox(width: 8), // Add a small space between buttons
+                const SizedBox(width: 8), // Add a small space between buttons
                 Expanded(
                   child: TextButton(
                     style: TextButton.styleFrom(
-                      padding: EdgeInsets.all(15),
+                      padding: const EdgeInsets.all(15),
                       backgroundColor: AppColors.red,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(
@@ -274,12 +229,12 @@ class _SettingScreenState extends State<SettingScreen> {
                       ),
                     ),
                     //color: Colors.green, // Customize the button's appearance
-                    child: Text(
+                    child: const Text(
                       "Logout",
                       style: TextStyle(color: AppColors.white),
                     ),
                     onPressed: () {
-                    //  APIs.logOut(context);
+                      //  APIs.logOut(context);
                       // Navigator.of(context).pop(); // Close the dialog
                     },
                   ),

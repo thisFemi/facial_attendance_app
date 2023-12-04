@@ -42,7 +42,7 @@ class APIs {
   static UserData? academicRecords;
   static Future<void> fetchUserDataFromFirestore(
       UserCredential userCredential) async {
-    final User? user = userCredential.user;
+    final user = userCredential.user;
     final String userUID = user!.uid;
 
     DocumentSnapshot snapshot =
@@ -107,6 +107,7 @@ class APIs {
     String userType = userInfo.userType.name.toLowerCase();
 
     // Reference to the user's document in the records collection
+   
     return firestore
         .collection('records')
         .doc(userType)
@@ -124,67 +125,6 @@ class APIs {
   ) async {
     try {
       // Reference to the session document
-      DocumentReference sessionRef =
-          firestore.collection('sessions').doc(sessionYear);
-
-      // Update the attendance list for the specified session, semester, and course
-      await firestore.runTransaction((transaction) async {
-        DocumentSnapshot sessionSnapshot = await transaction.get(sessionRef);
-        if (!sessionSnapshot.exists) {
-          // Session not found
-          throw "Session not found";
-        }
-
-        // Get the data
-        Map<String, dynamic> sessionData =
-            sessionSnapshot.data() as Map<String, dynamic>;
-        List<dynamic> semesters = sessionData['semesters'];
-
-        // Find the target semester
-        Map<String, dynamic>? targetSemester;
-        for (var semester in semesters) {
-          if (semester['semesterNumber'] == semesterNumber) {
-            targetSemester = semester;
-            break;
-          }
-        }
-
-        if (targetSemester == null) {
-          // Semester not found
-          throw "Semester not found";
-        }
-
-        // Find the target course
-        List<dynamic>? courses = targetSemester['courses'];
-        Map<String, dynamic>? targetCourse;
-        for (var course in courses!) {
-          if (course['courseId'] == courseId) {
-            targetCourse = course;
-            break;
-          }
-        }
-
-        if (targetCourse == null) {
-          // Course not found
-          throw "Course not found";
-        }
-
-        // Check if the lecturerId matches the one who created the attendance
-        if (targetCourse['lecturerId'] != lecturerId) {
-          // Lecturer mismatch, cannot remove the student
-          throw "Unable to complete action";
-        }
-
-        // Remove the student from the attendance list
-        List<dynamic>? attendanceList = targetCourse['attendanceList'];
-        for (var attendance in attendanceList!) {
-          List<dynamic>? students = attendance['students'];
-          students?.removeWhere((s) => s['studentId'] == student.studentId);
-        }
-
-        // Update Firestore with the modified data
-        transaction.update(sessionRef, {'semesters': semesters});
-      });
     } catch (error) {
       rethrow;
     }
@@ -252,7 +192,9 @@ class APIs {
 
             // Update the original academicRecords with the modified copy
             academicRecords = updatedAcademicRecords;
-
+            await registerCourses();
+            await addAttendanceToFilteredStudents(
+                session, semester, course, newAttendance);
             print("Attendance added to academicRecords");
           } else {
             throw ("Course not found in academicRecords");
@@ -268,6 +210,137 @@ class APIs {
     }
   }
 
+  static Future<List<UserData>> getAllStudents() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await firestore.collection('students').get();
+
+      List<UserData> students = querySnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return UserData.fromJson(data); // Assuming you have a Student class
+      }).toList();
+
+      return students;
+    } catch (error) {
+      throw ('Error getting students: $error');
+    }
+  }
+
+  static Future<void> addAttendanceToFilteredStudents(
+    Session session,
+    Semester semester,
+    Course course,
+    Attendance newAttendance,
+  ) async {
+    try {
+      // Fetch the filtered students
+      List<UserData> filteredStudents =
+          await getFilteredStudents(session, semester, course);
+
+      // Update attendance for each student
+      for (UserData student in filteredStudents) {
+        // Find the target session
+        int sessionIndex = student.sessions.indexWhere(
+          (userSession) => userSession.sessionYear == session.sessionYear,
+        );
+
+        if (sessionIndex != -1) {
+          // Find the target semester
+          int semesterIndex =
+              student.sessions[sessionIndex].semesters.indexWhere(
+            (userSemester) =>
+                userSemester.semesterNumber == semester.semesterNumber,
+          );
+
+          if (semesterIndex != -1) {
+            // Find the target course
+            int courseIndex = student
+                .sessions[sessionIndex].semesters[semesterIndex].courses
+                .indexWhere(
+              (userCourse) => userCourse.courseId == course.courseId,
+            );
+
+            if (courseIndex != -1) {
+              // Add the newAttendance to the target course in the student's data
+              student.sessions[sessionIndex].semesters[semesterIndex]
+                  .courses[courseIndex].attendanceList
+                  .add(newAttendance);
+            }
+          }
+        }
+      }
+
+      // Save the modified attendance back to Firestore for each student
+      for (UserData student in filteredStudents) {
+        await updateUsersRecord(
+            user_model.UserType.student, student.studentId, student);
+      }
+
+      print('Attendance added to filtered students');
+    } catch (error) {
+      throw ('Error adding attendance to filtered students: $error');
+    }
+  }
+
+  static updateUsersRecord(
+      user_model.UserType type, String id, UserData record) async {
+    String userType = type.name.toLowerCase();
+
+    // Reference to the user's document in the records collection
+    DocumentReference userDocRef = firestore
+        .collection('records')
+        .doc(userType)
+        .collection(userType == 'staff' ? 'staffs' : 'students')
+        .doc(id);
+
+    await userDocRef.set({'academicRecords': record.toJson()});
+  }
+
+  static Future<List<UserData>> getFilteredStudents(
+    Session session,
+    Semester semester,
+    Course course,
+  ) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await firestore.collection('students').get();
+
+      List<UserData> students = querySnapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return UserData.fromJson(data); // Assuming you have a Student class
+      }).where((student) {
+        // Replace the conditions with your logic
+        return isStudentEnrolled(student, session, semester) &&
+            student.sessions.any((s) => s.semesters.any((sem) =>
+                sem.courses.any((c) => c.courseId == course.courseId)));
+      }).toList();
+
+      return students;
+    } catch (error) {
+      throw ('Error getting students: $error');
+    }
+  }
+
+  static bool isStudentEnrolled(
+    UserData student,
+    Session session,
+    Semester semester,
+  ) {
+    // Replace this with your logic to check if the student is enrolled
+    return student.sessions.any((s) =>
+        s.sessionYear == session.sessionYear &&
+        s.semesters.any((sem) =>
+            sem.semesterNumber == semester.semesterNumber &&
+            sem.courses.any((c) => studentIsEnrolledInCourse(student, c))));
+  }
+
+  static bool studentIsEnrolledInCourse(UserData student, Course course) {
+    // Replace this with your logic to check if the student is enrolled in the course
+    return course.attendanceList.any((attendance) => student.sessions.any((s) =>
+        s.semesters.any(
+            (sem) => sem.courses.any((c) => c.courseId == course.courseId))));
+  }
+
   static Future<Position> determinePosition() async {
     LocationPermission permission;
     permission = await Geolocator.checkPermission();
@@ -276,8 +349,6 @@ class APIs {
       if (permission == LocationPermission.deniedForever) {
         return Future.error('Location Not Available');
       }
-    } else {
-      throw Exception('Error');
     }
     return await Geolocator.getCurrentPosition();
   }

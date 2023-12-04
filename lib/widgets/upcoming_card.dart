@@ -9,6 +9,7 @@ import 'package:timer_count_down/timer_count_down.dart';
 
 import '../api/apis.dart';
 import '../utils/Common.dart';
+import '../utils/dialogs.dart';
 import '../views/Others/attendance_capture_screen.dart';
 
 const defaultDuration = Duration(days: 2, hours: 2, minutes: 30);
@@ -29,7 +30,6 @@ class UpcomingAttendanceCard extends StatefulWidget {
 }
 
 class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
-  final TextEditingController _username = TextEditingController();
   bool _isLoading = true;
   Future<bool> isUserWithinDistance() async {
     try {
@@ -53,8 +53,6 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
       return false; // Handle the error appropriately
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -166,12 +164,17 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
                             await isUserWithinDistance().then((result) {
                               Navigator.pop(context);
                               if (result) {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (_) => AttendanceCapture(
-                                            // user: widget.user,
-                                            )));
+                                if (APIs.userInfo.userInfo!.imgUrl!="") {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => AttendanceCapture(
+                                              // user: widget.user,
+                                              )));
+                                } else {
+                                  Dialogs.showSnackbar(context,
+                                      "You need to complete your profile registration");
+                                }
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

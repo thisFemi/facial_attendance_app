@@ -55,6 +55,7 @@ dependencies:
   collection: ^1.17.2
   geolocator: ^10.1.0
   omni_datetime_picker: ^1.0.9
+  intl_phone_number_input: ^0.7.3+1
 
 dev_dependencies:
   flutter_test:

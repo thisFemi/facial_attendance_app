@@ -11,11 +11,11 @@ class UpcomingAttendanceScreen extends StatefulWidget {
   const UpcomingAttendanceScreen({Key? key});
 
   @override
-  State<UpcomingAttendanceScreen> createState() => _UpcomingAttendanceScreenState();
+  State<UpcomingAttendanceScreen> createState() =>
+      _UpcomingAttendanceScreenState();
 }
 
 class _UpcomingAttendanceScreenState extends State<UpcomingAttendanceScreen> {
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,24 +29,25 @@ class _UpcomingAttendanceScreenState extends State<UpcomingAttendanceScreen> {
       body: StreamBuilder(
         stream: APIs.fetchAcademicData(),
         builder: (context, snapshot) {
-          // if (snapshot.connectionState == ConnectionState.waiting) {
-          //   return const Center(child: CircularProgressIndicator());
-          // }
-          // if (snapshot.hasError) {
-          //   return Center(child: Text('Error: ${snapshot.error}'));
-          // }
-          // if (!snapshot.hasData || !snapshot.data!.exists) {
-          //   return Card(
-          //     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-          //     child: Padding(
-          //       padding: const EdgeInsets.symmetric(vertical: 30.0),
-          //       child: Center(child: const Text('Academic records not found!')),
-          //     ),
-          //   );
-          // }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5)),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 30.0),
+                child: Center(child: const Text('Academic records not found!')),
+              ),
+            );
+          }
 
-          //final studentData = UserData.fromJson(snapshot.data!.data()!);
-          final studentData = APIs.academicRecords!;
+          final studentData = UserData.fromJson(snapshot.data!.data()!['academicRecords']);
+          APIs.academicRecords = studentData;
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             itemCount: studentData.sessions.length,

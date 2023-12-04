@@ -39,7 +39,7 @@ class CourseAttendanceScreen extends StatelessWidget {
                   itemBuilder: (ctx, index) {
                     final attendance = attendances[index];
                     return LecturerAttendanceCard(
-                      date: attendance.startTime,
+                      date: attendance.endTime,
                       isPresent: attendance.isPresent,
                       lectuerName: attendance.lecturerName,
                     );

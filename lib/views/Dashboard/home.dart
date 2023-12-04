@@ -139,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
               stream: APIs.fetchAcademicData(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
+                  /// print(snapshot.data!.data()!);
                   return const Center(
                       child:
                           CircularProgressIndicator()); // Loading indicator while waiting for data
@@ -158,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Center(child: Text('Academic records not found!')),
                       ));
                 }
-                print(snapshot.data!.data()!['academicRecords']);
+                // print(snapshot.data!.data()!['academicRecords']);
                 final studentData = UserData.fromJson(
                     snapshot.data!.data()!['academicRecords']);
                 print(studentData);

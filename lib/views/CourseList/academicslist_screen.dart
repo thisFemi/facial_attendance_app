@@ -57,27 +57,28 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
         StreamBuilder(
             stream: APIs.fetchAcademicData(),
             builder: (context, snapshot) {
-              // if (snapshot.connectionState == ConnectionState.waiting) {
-              //   return Center(child: const CircularProgressIndicator()); // Loading indicator while waiting for data
-              // }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                    child:
+                        const CircularProgressIndicator()); // Loading indicator while waiting for data
+              }
 
-              // if (snapshot.hasError) {
-              //   return Center(child: Text('Error: ${snapshot.error}'));
-              // }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-              // if (!snapshot.hasData || !snapshot.data!.exists) {
-              //   return Card(
-              //         shape: RoundedRectangleBorder(
-              //             borderRadius: BorderRadius.circular(5)),
-              //         child: Padding(
-              //           padding: const EdgeInsets.symmetric(vertical: 30.0),
-              //           child: Center(
-              //               child: const Text(
-              //                   'Academic records not found!')),
-              //         ));
-              // }
-              // final studentData = UserData.fromJson(snapshot.data!.data()!);
-             final studentData = APIs.academicRecords!;
+              if (!snapshot.hasData || !snapshot.data!.exists) {
+                return Card(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5)),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 30.0),
+                      child: Center(
+                          child: const Text('Academic records not found!')),
+                    ));
+              }
+              final studentData = UserData.fromJson(snapshot.data!.data()!['academicRecords']);
+              APIs.academicRecords = studentData;
               return Expanded(
                 child: ListView.builder(
                     itemCount: studentData.sessions.length,

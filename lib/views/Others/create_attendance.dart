@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -285,8 +287,11 @@ class _CreateAttendanceScreenState extends State<CreateAttendanceScreen> {
   Future<String?> createAttendane() async {
     if (startTime != null && endTime != null && selectedRange != null) {
       try {
+        setState(() {
+          _isLoading = true;
+        });
         String verificationCode = generateVerificationCode();
-        Position currentPosition =  await APIs.determinePosition();
+        Position currentPosition = await APIs.determinePosition();
         double latitude = currentPosition.latitude;
         double longitude = currentPosition.longitude;
         Attendance newAttendance = Attendance(
@@ -300,11 +305,17 @@ class _CreateAttendanceScreenState extends State<CreateAttendanceScreen> {
             isPresent: false,
             latitude: latitude,
             longitude: longitude);
-
+        print("got hee");
         await APIs.addAttendanceToAcademicRecords(
             widget.session, widget.semester, widget.course, newAttendance);
+        setState(() {
+          _isLoading = false;
+        });
         return verificationCode;
       } catch (error) {
+        setState(() {
+          _isLoading = false;
+        });
         Dialogs.showSnackbar(context, error.toString());
       }
     }

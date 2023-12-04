@@ -8,7 +8,7 @@ import '../../utils/colors.dart';
 import '../../widgets/custom_appBar.dart';
 
 class LecturerListOfAttendance extends StatefulWidget {
-  const LecturerListOfAttendance({super.key});
+   LecturerListOfAttendance({super.key});
 
   @override
   State<LecturerListOfAttendance> createState() => _LecturerListOfAttendanceState();
