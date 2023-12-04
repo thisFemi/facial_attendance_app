@@ -1,3 +1,4 @@
+import 'package:attend_sense/views/Settings/Profile/edit_profile_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -99,15 +100,16 @@ class _SettingScreenState extends State<SettingScreen> {
               ),
             ),
             profileTiles(CupertinoIcons.person, 'Edit profile', () async {
-              // final profileUpdated = await Navigator.push(
-              //     context,
-              //     MaterialPageRoute(
-              //         builder: (_) => EditProfileScreen(
-              //               userInfo: APIs.userInfo,
-              //             )));
-              // if (profileUpdated == true) {
-              //   setState(() {});
-              // }
+              print("object");
+              final profileUpdated = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => EditProfileScreen(
+                            userInfo: APIs.userInfo,
+                          )));
+              if (profileUpdated == true) {
+                setState(() {});
+              }
             }),
 
             profileTiles(Icons.contact_support_rounded, 'Help center', () {

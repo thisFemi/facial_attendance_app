@@ -71,7 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(
                     Screen.deviceSize(context).height * .03),
                 child: CachedNetworkImage(
-                  color: AppColors.black,
+                  // color: AppColors.black,
+              height: Screen.deviceSize(context).height * .05,
                   width: Screen.deviceSize(context).height * .05,
                   fit: BoxFit.cover,
                   imageUrl: APIs.userInfo.userInfo != null

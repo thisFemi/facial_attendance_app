@@ -164,12 +164,15 @@ class _UpcomingAttendanceCardState extends State<UpcomingAttendanceCard> {
                             await isUserWithinDistance().then((result) {
                               Navigator.pop(context);
                               if (result) {
-                                if (APIs.userInfo.userInfo!.imgUrl!="") {
+                                if (APIs.userInfo.userInfo!.imgUrl != "") {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (_) => AttendanceCapture(
-                                              // user: widget.user,
+                                                attendance: widget.attendance,
+                                                course: widget.course,
+                                                semester: widget.semester,
+                                                session: widget.session,
                                               )));
                                 } else {
                                   Dialogs.showSnackbar(context,

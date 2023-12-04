@@ -1,6 +1,10 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -102,12 +106,121 @@ class APIs {
     }
   }
 
+  static Future<void> updateProfilePicture(
+      BuildContext context, File file) async {
+    print('started profile ');
+    final ext = file.path.split('.').last;
+    print('Extenson: ${ext}');
+    final ref = storage.ref().child('profile_pictures/${userInfo.id}.$ext');
+    try {
+      await ref
+          .putFile(file, SettableMetadata(contentType: 'image/${ext}'))
+          .then((p0) {
+        print('Date Transffered: ${p0.bytesTransferred / 1000} kb ');
+      });
+      userInfo.userInfo!.imgUrl = await ref.getDownloadURL();
+      await updateUserInfo();
+    } on FirebaseException catch (e) {
+      // Handle registration errors
+      print('Registration error: $e');
+      if (e.code == 'unknown') {
+        throw ('Registration failed, kindly check your internet connection');
+      }
+      throw 'Upload failed';
+    } catch (error) {
+      throw 'Upload failed';
+    }
+  }
+
+  static Future<String> getImgUrl(File file) async {
+    print('started capture img ');
+    final ext = file.path.split('.').last;
+    print('Extenson: ${ext}');
+    final ref = storage.ref().child('captured_images/${userInfo.id}.$ext');
+    try {
+      await ref
+          .putFile(file, SettableMetadata(contentType: 'image/${ext}'))
+          .then((p0) {
+        print('Date Transffered: ${p0.bytesTransferred / 1000} kb ');
+      });
+      String url = await ref.getDownloadURL();
+      return url;
+    } on FirebaseException catch (e) {
+      // Handle registration errors
+      print('Registration error: $e');
+      if (e.code == 'unknown') {
+        throw ('Operation failed, kindly check your internet connection');
+      }
+      throw 'Image Processing failed';
+    } catch (error) {
+      throw 'Image Processing failed';
+    }
+  }
+
+  static Future<void> updateUserInfo() async {
+    try {
+      await firestore
+          .collection('users')
+          .doc(userInfo.id)
+          .update(userInfo.toJson());
+    } on FirebaseException catch (e) {
+      // Handle registration errors
+      print('Registration error: $e');
+      if (e.code == 'unknown') {
+        throw ('Registration failed, kindly check your internet connection');
+      }
+      throw 'Upload failed';
+    } catch (error) {
+      throw 'Upload failed';
+    }
+  }
+
+  static Future<DetectionStatus> sendRecognitionRequest(File file) async {
+    try {
+      String url2 = await getImgUrl(file);
+      final data = {"url1": userInfo.userInfo!.imgUrl, "url2": url2};
+      final response = await http.post(
+        Uri.parse('https://attend-sense-b496e7923293.herokuapp.com/recognize'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: json.encode(data),
+      );
+      if (response.statusCode == 200) {
+        final dynamic responseData = jsonDecode(response.body);
+
+        if (responseData['data'] == null) {
+          throw ('Server error occurred in recognizing face');
+        } else {
+          switch (responseData['data']) {
+            case 0:
+              return DetectionStatus.noFace;
+
+            case 1:
+              return DetectionStatus.fail;
+
+            case 2:
+              return DetectionStatus.success;
+
+            default:
+              return DetectionStatus.noFace;
+          }
+        }
+      } else {
+        throw ('${response.statusCode} error');
+      }
+    } catch (error) {
+      throw ('Error decoding JSON: $error');
+    }
+  }
+
 //courses
   static Stream<DocumentSnapshot<Map<String, dynamic>>> fetchAcademicData() {
     String userType = userInfo.userType.name.toLowerCase();
 
     // Reference to the user's document in the records collection
-   
+
     return firestore
         .collection('records')
         .doc(userType)
@@ -353,3 +466,5 @@ class APIs {
     return await Geolocator.getCurrentPosition();
   }
 }
+
+enum DetectionStatus { noFace, fail, success }

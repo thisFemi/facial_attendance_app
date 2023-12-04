@@ -4,10 +4,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'dart:io';
 
+import '../../api/apis.dart';
+import '../../models/attendance_models.dart';
 import '../../utils/colors.dart';
+import '../../utils/dialogs.dart';
 
 class AttendanceCapture extends StatefulWidget {
-  const AttendanceCapture({Key? key}) : super(key: key);
+  AttendanceCapture(
+      {required this.session,
+      required this.attendance,
+      required this.course,
+      required this.semester});
+  Session session;
+  Semester semester;
+  Course course;
+  Attendance attendance;
 
   @override
   _AttendanceCaptureState createState() => _AttendanceCaptureState();
@@ -18,7 +29,7 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
   late Future<void>? _initializeControllerFuture;
   bool isCaptured = false;
   late XFile? capturedImage;
-  bool _isLoading = true;
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -27,7 +38,7 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
 
   Future<void> _initializeCamera() async {
     final cameras = await availableCameras();
-    final firstCamera = cameras.first;
+    final firstCamera = cameras.last;
 
     _controller = CameraController(
       firstCamera,
@@ -75,15 +86,9 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
-              child: _buildCameraPreview(),
+              child: isCaptured ? _buildCapturedImage() : _buildCameraPreview(),
             ),
             SizedBox(height: 16.0),
-            if (isCaptured) _buildCapturedImage(),
-            SizedBox(height: 16.0),
-            // ElevatedButton(
-            //   onPressed: isCaptured ? _recaptureImage : _captureImage,
-            //   child: Text(isCaptured ? 'Recapture' : 'Capture'),
-            // ),
             !isCaptured
                 ? Center(
                     child: Padding(
@@ -99,10 +104,10 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
                         style: TextButton.styleFrom(
                           backgroundColor: AppColors.black,
                         ),
-                        child: !_isLoading
-                            ? const SpinKitThreeBounce(
+                        child: _isLoading
+                            ? SpinKitThreeBounce(
                                 color: AppColors.offwhite, size: 40)
-                            : const Text(
+                            : Text(
                                 'Capture',
                                 style: TextStyle(
                                     color: AppColors.white,
@@ -112,7 +117,7 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
                     ),
                   ))
                 : Row(
-                  mainAxisAlignment:MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -123,12 +128,11 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
                           height: 50.0,
                           // width: Screen.deviceSize(context).width * 0.85,
                           child: TextButton(
-                            onPressed:
-                              _recaptureImage,
+                            onPressed: _recaptureImage,
                             style: TextButton.styleFrom(
                               backgroundColor: AppColors.black,
                             ),
-                            child: !_isLoading
+                            child: _isLoading
                                 ? const SpinKitThreeBounce(
                                     color: AppColors.offwhite, size: 40)
                                 : const Text(
@@ -149,17 +153,19 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
                           height: 50.0,
                           // width: Screen.deviceSize(context).width * 0.85,
                           child: TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
+                            onPressed: () async {
+                              await verifyandMarkAttendance(
+                                  File(capturedImage!.path));
+                              // Navigator.pop(context);
                             },
                             style: TextButton.styleFrom(
                               backgroundColor: AppColors.green,
                             ),
-                            child: !_isLoading
-                                ? const SpinKitThreeBounce(
+                            child: _isVerifyLoading
+                                ? SpinKitThreeBounce(
                                     color: AppColors.offwhite, size: 40)
-                                : const Text(
-                                    'Verify',
+                                : Text(
+                                    'Mark Attendance',
                                     style: TextStyle(
                                         color: AppColors.white,
                                         fontFamily: 'Raleway-SemiBold'),
@@ -174,6 +180,8 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
       ),
     );
   }
+
+  bool _isVerifyLoading = false;
 
   Widget _buildCameraPreview() {
     return FutureBuilder<void>(
@@ -200,5 +208,29 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
     setState(() {
       isCaptured = false;
     });
+  }
+
+  Future<void> verifyandMarkAttendance(
+    File file,
+  ) async {
+    try {
+      Dialogs.showProgressBar(context);
+      DetectionStatus result = await APIs.sendRecognitionRequest(file);
+      print("result is ${result.name}");
+      if (result == DetectionStatus.success) {
+      } else if (result == DetectionStatus.fail) {
+        Navigator.pop(context);
+        Dialogs.showSnackbar(
+            context, "Face not recognized, you can try again".toString());
+      } else if (result == DetectionStatus.noFace) {
+        Navigator.pop(context);
+        Dialogs.showSnackbar(
+            context, "No human face detected, try again".toString());
+      }
+
+    } catch (error) {
+      Navigator.pop(context);
+      Dialogs.showSnackbar(context, error.toString());
+    }
   }
 }
