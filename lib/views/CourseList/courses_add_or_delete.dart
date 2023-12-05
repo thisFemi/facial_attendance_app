@@ -102,9 +102,12 @@ class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
                                             child: TextButton(
                                               onPressed: () async {
                                                 courses.removeAt(index);
-                                             
-                                                await APIs.registerCourses();
-                                                   setState(() {});
+
+                                                await APIs.updateRecord(
+                                                  APIs.academicRecords!,
+                                                  APIs.userInfo,
+                                                );
+                                                setState(() {});
                                                 Navigator.pop(context);
                                               },
                                               style: TextButton.styleFrom(
@@ -223,7 +226,10 @@ class _AddOrDeleteScreenState extends State<AddOrDeleteScreen> {
           throw ('Error: Session not found');
         }
       }
-      await APIs.registerCourses();
+      await APIs.updateRecord(
+        APIs.academicRecords!,
+        APIs.userInfo,
+      );
       setState(() {
         _isLoading = false;
       });

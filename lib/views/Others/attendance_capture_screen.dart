@@ -218,16 +218,55 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
       DetectionStatus result = await APIs.sendRecognitionRequest(file);
       print("result is ${result.name}");
       if (result == DetectionStatus.success) {
+        StudentData newStudent = StudentData(
+            studentId: APIs.userInfo.id,
+            matricNumber: APIs.userInfo.userInfo!.matricNumber,
+            studentName: APIs.userInfo.name,
+            isPresent: true);
+
+        await APIs.updateStudentAttendanceAndLecturerList(
+            APIs.academicRecords!,
+            widget.session,
+            widget.semester,
+            widget.course,
+            widget.attendance,
+            true,
+            newStudent);
+        Navigator.pop(context);
+        Dialogs.showSuccessDialog(context, "Successful",
+            "Your attendance has been recorded", "Continue", () {
+          Navigator.pop(context);
+        });
+        Navigator.pop(context);
       } else if (result == DetectionStatus.fail) {
         Navigator.pop(context);
         Dialogs.showSnackbar(
             context, "Face not recognized, you can try again".toString());
       } else if (result == DetectionStatus.noFace) {
-        Navigator.pop(context);
-        Dialogs.showSnackbar(
-            context, "No human face detected, try again".toString());
-      }
+        StudentData newStudent = StudentData(
+            studentId: APIs.userInfo.id,
+            matricNumber: APIs.userInfo.userInfo!.matricNumber,
+            studentName: APIs.userInfo.name,
+            isPresent: true);
 
+        await APIs.updateStudentAttendanceAndLecturerList(
+            APIs.academicRecords!,
+            widget.session,
+            widget.semester,
+            widget.course,
+            widget.attendance,
+            true,
+            newStudent);
+        Navigator.pop(context);
+        Dialogs.showSuccessDialog(context, "Successful",
+            "Your attendance has been recorded", "Continue", () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        });
+        // Navigator.pop(context);
+        // Dialogs.showSnackbar(
+        //     context, "No human face detected, try again".toString());
+      }
     } catch (error) {
       Navigator.pop(context);
       Dialogs.showSnackbar(context, error.toString());

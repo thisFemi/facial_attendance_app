@@ -489,7 +489,10 @@ class _CourseRegScreenState extends State<CourseRegScreen> {
           print('added new session');
         }
       }
-      await APIs.registerCourses();
+      await APIs.updateRecord(
+        APIs.academicRecords!,
+        APIs.userInfo,
+      );
       setState(() {
         _isLoading = false;
       });

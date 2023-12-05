@@ -1,3 +1,4 @@
+import 'package:attend_sense/views/Auth/login.dart';
 import 'package:attend_sense/views/Settings/Profile/edit_profile_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -235,9 +236,13 @@ class _SettingScreenState extends State<SettingScreen> {
                       "Logout",
                       style: TextStyle(color: AppColors.white),
                     ),
-                    onPressed: () {
-                      //  APIs.logOut(context);
-                      // Navigator.of(context).pop(); // Close the dialog
+                    onPressed: () async {
+                      await APIs.logOut();
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => Login()),
+                        (Route<dynamic> route) => false,
+                      );
                     },
                   ),
                 ),

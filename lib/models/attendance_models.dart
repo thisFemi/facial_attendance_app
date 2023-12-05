@@ -1,3 +1,7 @@
+import 'package:attend_sense/models/user_model.dart';
+
+import '../api/apis.dart';
+
 class Attendance {
   String attendanceId;
   String lecturerName;
@@ -9,7 +13,7 @@ class Attendance {
   bool isPresent;
   double latitude; // New property
   double longitude; // New property
-  List<StudentData>? students;
+  List<StudentData> students;
 
   Attendance({
     required this.attendanceId,
@@ -22,7 +26,7 @@ class Attendance {
     required this.isPresent,
     required this.latitude,
     required this.longitude,
-    this.students,
+    required this.students,
   });
 
   factory Attendance.fromJson(Map<String, dynamic> json) {
@@ -33,16 +37,18 @@ class Attendance {
       startTime: DateTime.parse(json['startTime']),
       endTime: DateTime.parse(json['endTime']),
       verificationCode: json['verificationCode'],
-      range: json['range'],
+      range: double.parse(json['range'].toString()),
       isPresent: json['isPresent'] ?? false,
-      latitude: json['latitude'], // Replace with the actual key in your JSON
-      longitude: json['longitude'], // Replace with the actual key in your JSON
+      latitude: double.parse(json['latitude']
+          .toString()), // Replace with the actual key in your JSON
+      longitude: double.parse(json['longitude']
+          .toString()), // Replace with the actual key in your JSON
       students: json['students'] != null
           ? List<StudentData>.from(
               json['students']
                   .map((studentJson) => StudentData.fromJson(studentJson)),
             )
-          : null,
+          : [],
     );
   }
 
@@ -110,11 +116,13 @@ class Course {
   double calculateAttendancePercentage() {
     if (attendanceList.isEmpty) {
       return 0.0; // Avoid division by zero
-    }
+    }    int totalAttendanceCount = attendanceList
+        .expand((attendance) => attendance.students)
+        .where((student) => student.studentId == APIs.userInfo.id && student.isPresent==true)
+        .length;
 
-    int presentCount =
-        attendanceList.where((attendance) => attendance.isPresent).length;
-    double percentage = (presentCount / attendanceList.length);
+   
+    double percentage = (totalAttendanceCount / attendanceList.length);
 
     return percentage;
   }
@@ -153,7 +161,7 @@ class Semester {
   // Factory constructor to create a Semester object from a Map (JSON)
   factory Semester.fromJson(Map<String, dynamic> json) {
     return Semester(
-      semesterNumber: json['semesterName'] ,
+      semesterNumber: int.parse(json['semesterName'].toString()),
       courses: (json['courses'] as List<dynamic>? ?? [])
           .map((courseJson) => Course.fromJson(courseJson))
           .toList(),
@@ -243,9 +251,13 @@ class UserData {
     for (var session in sessions) {
       for (var semester in session.semesters) {
         for (var course in semester.courses) {
-          totalPresent += course.attendanceList
-              .where((attendance) => attendance.isPresent == true)
-              .length;
+          for (var attendance in course.attendanceList) {
+            totalPresent += attendance.students
+                .where((student) =>
+                    student.studentId == APIs.userInfo.id &&
+                    student.isPresent == true)
+                .length;
+          }
         }
       }
     }
@@ -255,11 +267,15 @@ class UserData {
   int getTotalAbsent() {
     int totalAbsent = 0;
     for (var session in sessions) {
-      for (var semester in session.semesters) {
+     for (var semester in session.semesters) {
         for (var course in semester.courses) {
-          totalAbsent += course.attendanceList
-              .where((attendance) => attendance.isPresent == false)
-              .length;
+          for (var attendance in course.attendanceList) {
+            totalAbsent += attendance.students
+                .where((student) =>
+                    student.studentId == APIs.userInfo.id &&
+                    student.isPresent == false)
+                .length;
+          }
         }
       }
     }

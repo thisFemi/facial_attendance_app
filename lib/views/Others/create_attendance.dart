@@ -303,6 +303,7 @@ class _CreateAttendanceScreenState extends State<CreateAttendanceScreen> {
             verificationCode: verificationCode,
             range: selectedRange!,
             isPresent: false,
+            students: [],
             latitude: latitude,
             longitude: longitude);
         print("got hee");

@@ -1,6 +1,7 @@
 import 'package:attend_sense/widgets/attendance_card.dart';
 import 'package:flutter/material.dart';
 
+import '../../api/apis.dart';
 import '../../models/attendance_models.dart';
 import '../../utils/colors.dart';
 import '../../widgets/course_card.dart';
@@ -38,9 +39,13 @@ class CourseAttendanceScreen extends StatelessWidget {
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (ctx, index) {
                     final attendance = attendances[index];
+                    final studentData = attendance.students.indexWhere(
+                        (student) => student.studentId == APIs.userInfo.id);
                     return LecturerAttendanceCard(
                       date: attendance.endTime,
-                      isPresent: attendance.isPresent,
+                      isPresent: studentData != -1
+                          ? attendance.students[studentData].isPresent
+                          : false,
                       lectuerName: attendance.lecturerName,
                     );
                   }),

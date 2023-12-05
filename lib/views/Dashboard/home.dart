@@ -165,6 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     snapshot.data!.data()!['academicRecords']);
                 print(studentData);
                 APIs.academicRecords = studentData;
+              
 
                 return Column(
                   children: [

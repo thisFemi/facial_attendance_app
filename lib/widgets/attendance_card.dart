@@ -19,6 +19,7 @@ class LecturerAttendanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("status : ${isPresent}");
     return Card(
       margin: EdgeInsets.symmetric(vertical: 5),
       elevation: 2,
@@ -106,7 +107,7 @@ class AttendanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool open = attendance.endTime.isBefore(DateTime.now());
+    bool open = attendance.endTime.isAfter(DateTime.now());
     return Card(
       margin: EdgeInsets.symmetric(vertical: 5),
       elevation: 2,

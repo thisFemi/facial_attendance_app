@@ -229,13 +229,13 @@ class APIs {
         .snapshots();
   }
 
-  static Future<void> removeStudent(
-    StudentData student,
-    String sessionYear,
-    int semesterNumber,
-    String courseId,
-    String lecturerId, // Add the lecturerId parameter
-  ) async {
+  static Future<void> changeStudentAttendance(
+      Session session,
+      Semester semester,
+      Course course,
+      Attendance attendance,
+      StudentData studentData,
+      bool status) async {
     try {
       // Reference to the session document
     } catch (error) {
@@ -243,7 +243,8 @@ class APIs {
     }
   }
 
-  static Future<void> registerCourses() async {
+  static Future<void> updateRecord(
+      UserData academicRecords, user_model.User userInfo) async {
     try {
       // Reference to the user's document in the records collection
       String userType = userInfo.userType.name.toLowerCase();
@@ -255,7 +256,7 @@ class APIs {
           .collection(userType == 'staff' ? 'staffs' : 'students')
           .doc(userInfo.id);
 
-      await userDocRef.set({'academicRecords': academicRecords!.toJson()});
+      await userDocRef.set({'academicRecords': academicRecords.toJson()});
 
       print("Course registration added for a new user");
 
@@ -305,7 +306,7 @@ class APIs {
 
             // Update the original academicRecords with the modified copy
             academicRecords = updatedAcademicRecords;
-            await registerCourses();
+            await updateRecord(academicRecords!, userInfo);
             await addAttendanceToFilteredStudents(
                 session, semester, course, newAttendance);
             print("Attendance added to academicRecords");
@@ -415,18 +416,26 @@ class APIs {
     Course course,
   ) async {
     try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await firestore.collection('students').get();
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await firestore
+          .collection('records')
+          .doc("student")
+          .collection("students")
+          .get();
 
-      List<UserData> students = querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return UserData.fromJson(data); // Assuming you have a Student class
-      }).where((student) {
-        // Replace the conditions with your logic
-        return isStudentEnrolled(student, session, semester) &&
+      List<UserData> students = [];
+
+      for (QueryDocumentSnapshot<Map<String, dynamic>> doc
+          in querySnapshot.docs) {
+        Map<String, dynamic> userData = doc.data();
+        print("User data${userData}");
+        UserData student = UserData.fromJson(userData['academicRecords']);
+
+        if (isStudentEnrolled(student, session, semester, course) &&
             student.sessions.any((s) => s.semesters.any((sem) =>
-                sem.courses.any((c) => c.courseId == course.courseId)));
-      }).toList();
+                sem.courses.any((c) => c.courseId == course.courseId)))) {
+          students.add(student);
+        }
+      }
 
       return students;
     } catch (error) {
@@ -438,13 +447,14 @@ class APIs {
     UserData student,
     Session session,
     Semester semester,
+    Course course,
   ) {
     // Replace this with your logic to check if the student is enrolled
     return student.sessions.any((s) =>
         s.sessionYear == session.sessionYear &&
         s.semesters.any((sem) =>
             sem.semesterNumber == semester.semesterNumber &&
-            sem.courses.any((c) => studentIsEnrolledInCourse(student, c))));
+            sem.courses.any((c) => c.courseId == course.courseId)));
   }
 
   static bool studentIsEnrolledInCourse(UserData student, Course course) {
@@ -464,6 +474,255 @@ class APIs {
       }
     }
     return await Geolocator.getCurrentPosition();
+  }
+
+  static Future<void> updateStudentAttendanceAndLecturerList(
+    UserData student,
+    Session session,
+    Semester semester,
+    Course course,
+    Attendance newAttendance,
+    bool status,
+    StudentData studentData,
+  ) async {
+    print("started uploading to staff ans tudent");
+    try {
+      // Check if the verification code already exists
+      int sessionIndex = student.sessions.indexWhere(
+        (userSession) => userSession.sessionYear == session.sessionYear,
+      );
+
+      if (sessionIndex != -1) {
+        int semesterIndex = student.sessions[sessionIndex].semesters.indexWhere(
+          (userSemester) =>
+              userSemester.semesterNumber == semester.semesterNumber,
+        );
+
+        if (semesterIndex != -1) {
+          int courseIndex = student
+              .sessions[sessionIndex].semesters[semesterIndex].courses
+              .indexWhere(
+            (userCourse) => userCourse.courseId == course.courseId,
+          );
+
+          if (courseIndex != -1) {
+            // Find the attendance index with matching attendanceId and verificationCode
+            int attendanceIndex = student.sessions[sessionIndex]
+                .semesters[semesterIndex].courses[courseIndex].attendanceList
+                .indexWhere(
+              (atten) =>
+                  atten.attendanceId == newAttendance.attendanceId &&
+                  atten.verificationCode == newAttendance.verificationCode,
+            );
+
+            if (attendanceIndex != -1) {
+              // Check if the student is already present in the attendance list
+              int? studentIndex = student
+                  .sessions[sessionIndex]
+                  .semesters[semesterIndex]
+                  .courses[courseIndex]
+                  .attendanceList[attendanceIndex]
+                  .students
+                  ?.indexWhere(
+                      (stud) => stud.studentId == studentData.studentId);
+
+              if (studentIndex == -1 || studentIndex == null) {
+                // If the student is not present, add the StudentData to the list
+                student
+                    .sessions[sessionIndex]
+                    .semesters[semesterIndex]
+                    .courses[courseIndex]
+                    .attendanceList[attendanceIndex]
+                    .students
+                    ?.add(StudentData(
+                  studentId: studentData.studentId,
+                  matricNumber: studentData.matricNumber,
+                  studentName: studentData.studentName,
+                  isPresent: status,
+                ));
+              }
+            }
+            String studentId = studentData.studentId;
+            DocumentSnapshot<Map<String, dynamic>> studentSnapshot =
+                await firestore.collection('users').doc(studentId).get();
+            if (studentSnapshot.exists) {
+              Map<String, dynamic> studentData = studentSnapshot.data()!;
+              final user_model.User studentBasicInfo =
+                  user_model.User.fromJson(studentData);
+              await updateRecord(
+                student,
+                studentBasicInfo,
+              );
+              // Save the modified attendance back to Firestore for the student
+            }
+          }
+        }
+        print("started lecturer");
+        // Find lecturer details
+        String lecturerId = newAttendance.lecturerId;
+        DocumentSnapshot<Map<String, dynamic>> lecturerSnapshot =
+            await firestore.collection('users').doc(lecturerId).get();
+
+        if (lecturerSnapshot.exists) {
+          Map<String, dynamic> lecturerData = lecturerSnapshot.data()!;
+          final user_model.User lecturerBasicInfo =
+              user_model.User.fromJson(lecturerData);
+
+          String userType = lecturerBasicInfo.userType.name.toLowerCase();
+
+          // Reference to the user's document in the records collection
+
+          DocumentSnapshot<Map<String, dynamic>> lecturerRecord =
+              await firestore
+                  .collection('records')
+                  .doc(userType)
+                  .collection(userType == 'staff' ? 'staffs' : 'students')
+                  .doc(lecturerId)
+                  .get();
+          print(lecturerRecord.data()!);
+          if (lecturerRecord.exists) {
+            Map<String, dynamic> lecturerData =
+                lecturerRecord.data()!['academicRecords'];
+
+            UserData lecturer = UserData.fromJson(lecturerData);
+
+            // Add the studentData to the lecturer's attendance list
+            int lecturerSessionIndex = lecturer.sessions.indexWhere(
+              (userSession) => userSession.sessionYear == session.sessionYear,
+            );
+
+            if (lecturerSessionIndex != -1) {
+              int lecturerSemesterIndex =
+                  lecturer.sessions[lecturerSessionIndex].semesters.indexWhere(
+                (userSemester) =>
+                    userSemester.semesterNumber == semester.semesterNumber,
+              );
+
+              if (lecturerSemesterIndex != -1) {
+                int lecturerCourseIndex = lecturer
+                    .sessions[lecturerSessionIndex]
+                    .semesters[lecturerSemesterIndex]
+                    .courses
+                    .indexWhere(
+                  (userCourse) => userCourse.courseId == course.courseId,
+                );
+
+                if (lecturerCourseIndex != -1) {
+                  print(
+                      " Check if the verification code already exists for the lecturer");
+                  bool attendanceExists = lecturer
+                      .sessions[lecturerSessionIndex]
+                      .semesters[lecturerSemesterIndex]
+                      .courses[lecturerCourseIndex]
+                      .attendanceList
+                      .any((attendance) =>
+                          attendance.verificationCode ==
+                          newAttendance.verificationCode);
+                  if (!attendanceExists) {
+                    print(
+                        " If the attendance doesn't exist, add a new attendance record");
+                    lecturer
+                        .sessions[lecturerSessionIndex]
+                        .semesters[lecturerSemesterIndex]
+                        .courses[lecturerCourseIndex]
+                        .attendanceList
+                        .add(newAttendance);
+                  }
+
+                  print(
+                      "Update the student data in the lecturer's attendance list");
+                  int lecturerAttendanceIndex = lecturer
+                      .sessions[lecturerSessionIndex]
+                      .semesters[lecturerSemesterIndex]
+                      .courses[lecturerCourseIndex]
+                      .attendanceList
+                      .indexWhere((attendance) =>
+                          attendance.verificationCode ==
+                              newAttendance.verificationCode &&
+                          attendance.lecturerId == newAttendance.lecturerId);
+                  if (lecturerAttendanceIndex != -1) {
+                    print(
+                        "Update the student data in the lecturer's attendance list");
+                    int studentIndex = lecturer
+                        .sessions[lecturerSessionIndex]
+                        .semesters[lecturerSemesterIndex]
+                        .courses[lecturerCourseIndex]
+                        .attendanceList[lecturerAttendanceIndex]
+                        .students
+                        .indexWhere(
+                      (stud) => stud.studentId == studentData.studentId,
+                    );
+                    if (studentIndex != -1) {
+                      print("The student was found in the list");
+                      print("Update the student's isPresent status");
+                      lecturer
+                          .sessions[lecturerSessionIndex]
+                          .semesters[lecturerSemesterIndex]
+                          .courses[lecturerCourseIndex]
+                          .attendanceList[lecturerAttendanceIndex]
+                          .students[studentIndex]
+                          .isPresent = status;
+                    } else {
+                      print("The student was not found in the list");
+                      print(
+                          " Add the student to the list with the specified status");
+                      lecturer
+                          .sessions[lecturerSessionIndex]
+                          .semesters[lecturerSemesterIndex]
+                          .courses[lecturerCourseIndex]
+                          .attendanceList[lecturerAttendanceIndex]
+                          .students
+                          .add(StudentData(
+                        studentId: studentData.studentId,
+                        matricNumber: studentData.matricNumber,
+                        studentName: studentData.studentName,
+                        isPresent: status,
+                      ));
+                    }
+                  } else {
+                    lecturer
+                        .sessions[lecturerSessionIndex]
+                        .semesters[lecturerSemesterIndex]
+                        .courses[lecturerCourseIndex]
+                        .attendanceList[lecturerAttendanceIndex]
+                        .students
+                        .add(StudentData(
+                      studentId: studentData.studentId,
+                      matricNumber: studentData.matricNumber,
+                      studentName: studentData.studentName,
+                      isPresent: status,
+                    ));
+                  }
+
+                  // Save the modified attendance back to Firestore for the lecturer
+                } else {
+                  throw "Course not found";
+                }
+              } else {
+                throw "Semester not found";
+              }
+            } else {
+              throw "Session not found";
+            }
+            await updateRecord(
+              lecturer,
+              lecturerBasicInfo,
+            );
+          }
+
+          print('Attendance updated for student and lecturer');
+        }
+      }
+    } catch (error) {
+      print(error);
+      throw ('Error updating attendance: $error');
+    }
+  }
+
+  static Future<void> logOut() async {
+    academicRecords = null;
+    await auth.signOut();
+    // await GoogleSignIn().signOut();
   }
 }
 
