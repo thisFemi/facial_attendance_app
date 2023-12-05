@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Screen.deviceSize(context).height * .03),
                 child: CachedNetworkImage(
                   // color: AppColors.black,
-              height: Screen.deviceSize(context).height * .05,
+                  height: Screen.deviceSize(context).height * .05,
                   width: Screen.deviceSize(context).height * .05,
                   fit: BoxFit.cover,
                   imageUrl: APIs.userInfo.userInfo != null
@@ -165,7 +165,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     snapshot.data!.data()!['academicRecords']);
                 print(studentData);
                 APIs.academicRecords = studentData;
-              
 
                 return Column(
                   children: [
@@ -256,6 +255,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const Divider(),
                                 !isLecturer
                                     ? Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             crossAxisAlignment:
@@ -347,8 +348,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             shrinkWrap: true,
                             physics: const BouncingScrollPhysics(),
                             itemBuilder: (ctx, index) {
-                              final course =  studentData
-                                .sessions.last.semesters.last.courses[index];
+                              final course = studentData
+                                  .sessions.last.semesters.last.courses[index];
                               return CourseCard(
                                   progress:
                                       course.calculateAttendancePercentage(),

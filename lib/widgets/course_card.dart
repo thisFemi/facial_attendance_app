@@ -16,16 +16,16 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 5),
+      elevation: 2,
+      shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      color: Colors.white,
+      child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: () => onTap(),
-        child: Card(
-          margin: EdgeInsets.symmetric(vertical: 5),
-          elevation: 2,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          color: Colors.white,
-          child: Container(
+        child: Container(
             padding: EdgeInsets.symmetric(vertical: 20, horizontal: 10),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,6 +72,7 @@ class CourseCard extends StatelessWidget {
               ],
             ),
           ),
-        ));
+      ),
+    );
   }
 }

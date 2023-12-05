@@ -8,6 +8,7 @@ import '../../utils/colors.dart';
 import '../../utils/dialogs.dart';
 import '../../widgets/attendance_card.dart';
 import '../../widgets/custom_appBar.dart';
+import '../Others/pdfPreview.dart';
 
 class AttendanceList extends StatelessWidget {
   AttendanceList(
@@ -74,7 +75,7 @@ class StudentAttendanceList extends StatefulWidget {
 }
 
 class _StudentAttendanceListState extends State<StudentAttendanceList> {
-  bool _isLoading = false;
+
   List<StudentData> students = [];
   @override
   void initState() {
@@ -84,34 +85,25 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
 
   Future<void> removeStudent(StudentData student) async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
-      if (APIs.userInfo.id != widget.attendance.lecturerId) {
-        await APIs.removeStudent(
-                student,
-                widget.session.sessionYear,
-                widget.semester.semesterNumber,
-                widget.course.courseId,
-                APIs.userInfo.id)
+      Dialogs.showProgressBar(context);
+      if (APIs.userInfo.id == widget.attendance.lecturerId) {
+        await APIs.changeStudentAttendance(widget.session, widget.semester,
+                widget.course, widget.attendance, student, false)
             .then((value) {
-          students
-              .removeWhere((stud) => stud.matricNumber == student.matricNumber);
-          setState(() {
-            _isLoading = false;
-          });
+          int index = students
+              .indexWhere((stud) => stud.matricNumber == student.matricNumber);
+          students[index].isPresent = false;
+
+          Navigator.pop(context);
+          setState(() {});
         });
       } else {
-        setState(() {
-          _isLoading = false;
-        });
+        Navigator.pop(context);
         Dialogs.showSnackbar(
             context, "You're not eligible to perform operation");
       }
     } catch (error) {
-      setState(() {
-        _isLoading = false;
-      });
+      Navigator.pop(context);
       Dialogs.showSnackbar(context, error.toString());
     }
   }
@@ -125,17 +117,25 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
           showArrowBack: true,
           title: "Records",
           actions: [
-            Padding(
+          students.isNotEmpty?  Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                 vertical: 10,
+                horizontal: 20,
+                vertical: 10,
               ),
               child: SizedBox(
                 height: 35.0,
                 // width: Screen.deviceSize(context).width * 0.85,
                 child: TextButton(
                   onPressed: () async {
-                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => PdfPreviewPage(
+                                  course: widget.course,
+                                  semester: widget.semester,
+                                  session: widget.session,
+                                  attendance: widget.attendance,
+                                )));
                   },
                   style: TextButton.styleFrom(
                     backgroundColor: AppColors.black,
@@ -147,7 +147,7 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
                   ),
                 ),
               ),
-            ),
+            ):SizedBox.shrink()
           ]),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -161,8 +161,7 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
             const SizedBox(
               height: 10,
             ),
-            !(widget.attendance.students == null ||
-                    widget.attendance.students!.length == 0)
+            !(widget.attendance.students.length == 0)
                 ? Expanded(
                     child: ListView.builder(
                         itemCount: students.length,
@@ -182,10 +181,14 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
                                   builder: (context) => SimpleDialog(
                                         alignment: Alignment.center,
                                         contentPadding: EdgeInsets.all(10),
-                                        title: Text("Remove Student?"),
+                                        title: Text(
+                                          "Remove Student?",
+                                          textAlign: TextAlign.center,
+                                        ),
                                         children: [
                                           Text(
-                                            'Are you sure you want to remove ${student.studentName} from attendance?',
+                                            'Are you sure you want to remove ${student.matricNumber} from attendance?. This action is irreversible, Dou you still want to continue? ',
+                                            textAlign: TextAlign.center,
                                             style: TextStyle(fontSize: 16),
                                           ),
                                           SizedBox(height: 10),
@@ -232,27 +235,22 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
                                                   // width: Screen.deviceSize(context).width * 0.85,
                                                   child: TextButton(
                                                     onPressed: () async {
+                                                      Navigator.pop(context);
                                                       await removeStudent(
                                                           student);
-                                                      Navigator.pop(context);
                                                     },
                                                     style: TextButton.styleFrom(
                                                       backgroundColor:
                                                           AppColors.red,
                                                     ),
-                                                    child: _isLoading
-                                                        ? const SpinKitThreeBounce(
-                                                            color: AppColors
-                                                                .offwhite,
-                                                            size: 30)
-                                                        : const Text(
-                                                            'Remove',
-                                                            style: TextStyle(
-                                                                color: AppColors
-                                                                    .white,
-                                                                fontFamily:
-                                                                    'Raleway-SemiBold'),
-                                                          ),
+                                                    child: const Text(
+                                                      'Mark Absent',
+                                                      style: TextStyle(
+                                                          color:
+                                                              AppColors.white,
+                                                          fontFamily:
+                                                              'Raleway-SemiBold'),
+                                                    ),
                                                   ),
                                                 ),
                                               ),

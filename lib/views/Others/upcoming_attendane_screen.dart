@@ -46,7 +46,8 @@ class _UpcomingAttendanceScreenState extends State<UpcomingAttendanceScreen> {
             );
           }
 
-          final studentData = UserData.fromJson(snapshot.data!.data()!['academicRecords']);
+          final studentData =
+              UserData.fromJson(snapshot.data!.data()!['academicRecords']);
           APIs.academicRecords = studentData;
           return ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -77,21 +78,28 @@ class _UpcomingAttendanceScreenState extends State<UpcomingAttendanceScreen> {
                           .toList();
 
                       return ListView.builder(
-                        itemCount: upcomingAttendances.length,
-                        shrinkWrap: true,
-                        physics: BouncingScrollPhysics(),
-                        itemBuilder: (ctx, attendanceIndex) {
-                          final upcomingAttendance =
-                              upcomingAttendances[attendanceIndex];
-
-                          return UpcomingAttendanceCard(
-                            attendance: upcomingAttendance,
-                            course: course,
-                            semester: semester,
-                            session: session,
-                          );
-                        },
-                      );
+                          itemCount: upcomingAttendances.length,
+                          shrinkWrap: true,
+                          physics: BouncingScrollPhysics(),
+                          itemBuilder: (ctx, attendanceIndex) {
+                            final upcomingAttendance =
+                                upcomingAttendances[attendanceIndex];
+                            bool isStudentEligible = upcomingAttendance.students
+                                .any((student) =>
+                                    student.studentId == APIs.userInfo.id &&
+                                    student.isEligible == true);
+                            if (isStudentEligible) {
+                              return UpcomingAttendanceCard(
+                                attendance: upcomingAttendance,
+                                course: course,
+                                semester: semester,
+                                session: session,
+                              );
+                            } else {
+                              // If student is not eligible, return an empty container or null
+                              return SizedBox.shrink();
+                            }
+                          });
                     },
                   );
                 },

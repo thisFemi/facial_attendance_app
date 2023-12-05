@@ -237,7 +237,114 @@ class APIs {
       StudentData studentData,
       bool status) async {
     try {
-      // Reference to the session document
+      int sessionIndex = academicRecords!.sessions.indexWhere(
+        (userSession) => userSession.sessionYear == session.sessionYear,
+      );
+      if (sessionIndex != 1) {
+        int semesterIndex =
+            academicRecords!.sessions[sessionIndex].semesters.indexWhere(
+          (userSemester) =>
+              userSemester.semesterNumber == semester.semesterNumber,
+        );
+        if (semesterIndex != -1) {
+          int courseIndex = academicRecords!
+              .sessions[sessionIndex].semesters[semesterIndex].courses
+              .indexWhere(
+            (userCourse) => userCourse.courseId == course.courseId,
+          );
+          if (courseIndex != -1) {
+            int attendanceIndex = academicRecords!.sessions[sessionIndex]
+                .semesters[semesterIndex].courses[courseIndex].attendanceList
+                .indexWhere(
+              (atten) =>
+                  atten.attendanceId == attendance.attendanceId &&
+                  atten.verificationCode == attendance.verificationCode,
+            );
+            if (attendanceIndex != -1) {
+              int studentIndex = academicRecords!
+                  .sessions[sessionIndex]
+                  .semesters[semesterIndex]
+                  .courses[courseIndex]
+                  .attendanceList[attendanceIndex]
+                  .students
+                  .indexWhere(
+                      (stud) => stud.studentId == studentData.studentId);
+              if (studentIndex != -1) {
+                academicRecords!
+                    .sessions[sessionIndex]
+                    .semesters[semesterIndex]
+                    .courses[courseIndex]
+                    .attendanceList[attendanceIndex]
+                    .students[studentIndex]
+                    .isPresent = false;
+
+                academicRecords!
+                    .sessions[sessionIndex]
+                    .semesters[semesterIndex]
+                    .courses[courseIndex]
+                    .attendanceList[attendanceIndex]
+                    .students[studentIndex]
+                    .isEligible = false;
+                print("finished lecturer");
+                await updateRecord(academicRecords!, userInfo)
+                    .then((value) async {
+                  String studentId = studentData.studentId;
+                  DocumentSnapshot<Map<String, dynamic>> studentSnapshot =
+                      await firestore.collection('users').doc(studentId).get();
+                  if (studentSnapshot.exists) {
+                    Map<String, dynamic> studentData = studentSnapshot.data()!;
+                    final user_model.User studentBasicInfo =
+                        user_model.User.fromJson(studentData);
+
+                    String userType =
+                        studentBasicInfo.userType.name.toLowerCase();
+                    DocumentSnapshot<Map<String, dynamic>> studentRecord =
+                        await firestore
+                            .collection('records')
+                            .doc(userType)
+                            .collection(
+                                userType == 'staff' ? 'staffs' : 'students')
+                            .doc(studentId)
+                            .get();
+                    if (studentRecord.exists) {
+                      Map<String, dynamic> studentData =
+                          studentRecord.data()!['academicRecords'];
+                      UserData student = UserData.fromJson(studentData);
+                      student
+                          .sessions[sessionIndex]
+                          .semesters[semesterIndex]
+                          .courses[courseIndex]
+                          .attendanceList[attendanceIndex]
+                          .students[studentIndex]
+                          .isPresent = false;
+                      student
+                          .sessions[sessionIndex]
+                          .semesters[semesterIndex]
+                          .courses[courseIndex]
+                          .attendanceList[attendanceIndex]
+                          .students[studentIndex]
+                          .isEligible = false;
+                      await updateRecord(student, studentBasicInfo);
+                      print("student done");
+                    }
+                  }
+                });
+              } else {
+                "student not found";
+              }
+            } else {
+              "attendance not found";
+            }
+          } else {
+            "Course not found";
+          }
+        } else {
+          throw "Semester not found";
+        }
+      } else {
+        throw "Session not found";
+      }
+      print("removed done!");
     } catch (error) {
       rethrow;
     }
@@ -539,6 +646,7 @@ class APIs {
                   matricNumber: studentData.matricNumber,
                   studentName: studentData.studentName,
                   isPresent: status,
+                  isEligible: true,
                 ));
               }
             }
@@ -677,6 +785,7 @@ class APIs {
                         matricNumber: studentData.matricNumber,
                         studentName: studentData.studentName,
                         isPresent: status,
+                        isEligible: true,
                       ));
                     }
                   } else {
@@ -691,6 +800,7 @@ class APIs {
                       matricNumber: studentData.matricNumber,
                       studentName: studentData.studentName,
                       isPresent: status,
+                      isEligible: true,
                     ));
                   }
 

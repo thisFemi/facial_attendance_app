@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:attend_sense/widgets/custom_appBar.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +90,7 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
             Expanded(
               child: isCaptured ? _buildCapturedImage() : _buildCameraPreview(),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             !isCaptured
                 ? Center(
                     child: Padding(
@@ -105,9 +107,9 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
                           backgroundColor: AppColors.black,
                         ),
                         child: _isLoading
-                            ? SpinKitThreeBounce(
+                            ? const SpinKitThreeBounce(
                                 color: AppColors.offwhite, size: 40)
-                            : Text(
+                            : const Text(
                                 'Capture',
                                 style: TextStyle(
                                     color: AppColors.white,
@@ -161,10 +163,7 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
                             style: TextButton.styleFrom(
                               backgroundColor: AppColors.green,
                             ),
-                            child: _isVerifyLoading
-                                ? SpinKitThreeBounce(
-                                    color: AppColors.offwhite, size: 40)
-                                : Text(
+                            child: const Text(
                                     'Mark Attendance',
                                     style: TextStyle(
                                         color: AppColors.white,
@@ -190,7 +189,7 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
         if (snapshot.connectionState == ConnectionState.done) {
           return CameraPreview(_controller!);
         } else {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );
@@ -222,6 +221,7 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
             studentId: APIs.userInfo.id,
             matricNumber: APIs.userInfo.userInfo!.matricNumber,
             studentName: APIs.userInfo.name,
+            isEligible: true,
             isPresent: true);
 
         await APIs.updateStudentAttendanceAndLecturerList(
@@ -243,29 +243,10 @@ class _AttendanceCaptureState extends State<AttendanceCapture> {
         Dialogs.showSnackbar(
             context, "Face not recognized, you can try again".toString());
       } else if (result == DetectionStatus.noFace) {
-        StudentData newStudent = StudentData(
-            studentId: APIs.userInfo.id,
-            matricNumber: APIs.userInfo.userInfo!.matricNumber,
-            studentName: APIs.userInfo.name,
-            isPresent: true);
-
-        await APIs.updateStudentAttendanceAndLecturerList(
-            APIs.academicRecords!,
-            widget.session,
-            widget.semester,
-            widget.course,
-            widget.attendance,
-            true,
-            newStudent);
+       
         Navigator.pop(context);
-        Dialogs.showSuccessDialog(context, "Successful",
-            "Your attendance has been recorded", "Continue", () {
-          Navigator.pop(context);
-          Navigator.pop(context);
-        });
-        // Navigator.pop(context);
-        // Dialogs.showSnackbar(
-        //     context, "No human face detected, try again".toString());
+        Dialogs.showSnackbar(
+            context, "No human face detected, try again".toString());
       }
     } catch (error) {
       Navigator.pop(context);

@@ -76,12 +76,14 @@ class StudentData {
   String matricNumber;
   String studentName;
   bool isPresent;
+  bool isEligible;
 
   StudentData({
     required this.studentId,
     required this.matricNumber,
     required this.studentName,
     required this.isPresent,
+    required this.isEligible,
   });
 
   factory StudentData.fromJson(Map<String, dynamic> json) {
@@ -90,6 +92,7 @@ class StudentData {
       matricNumber: json['matricNumber'],
       studentName: json['studentName'],
       isPresent: json['isPresent'],
+      isEligible:json['isEligible']
     );
   }
 
@@ -99,6 +102,7 @@ class StudentData {
       'matricNumber': matricNumber,
       'studentName': studentName,
       'isPresent': isPresent,
+      'isEligible':isEligible
     };
   }
 }
@@ -116,12 +120,13 @@ class Course {
   double calculateAttendancePercentage() {
     if (attendanceList.isEmpty) {
       return 0.0; // Avoid division by zero
-    }    int totalAttendanceCount = attendanceList
+    }
+    int totalAttendanceCount = attendanceList
         .expand((attendance) => attendance.students)
-        .where((student) => student.studentId == APIs.userInfo.id && student.isPresent==true)
+        .where((student) =>
+            student.studentId == APIs.userInfo.id && student.isPresent == true)
         .length;
 
-   
     double percentage = (totalAttendanceCount / attendanceList.length);
 
     return percentage;
@@ -267,7 +272,7 @@ class UserData {
   int getTotalAbsent() {
     int totalAbsent = 0;
     for (var session in sessions) {
-     for (var semester in session.semesters) {
+      for (var semester in session.semesters) {
         for (var course in semester.courses) {
           for (var attendance in course.attendanceList) {
             totalAbsent += attendance.students

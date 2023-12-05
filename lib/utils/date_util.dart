@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-
-
 class DateUtil {
   static String getFormattedTime(
       {required BuildContext context, required String time}) {
@@ -121,7 +119,6 @@ class DateUtil {
     }
   }
 
- 
   static String getShortWeekday(DateTime date) {
     final DateFormat dateFormat = DateFormat('E');
     final String shortWeekday = dateFormat.format(date);
@@ -142,5 +139,4 @@ class DateUtil {
     final formatter = DateFormat('dd/MM/yyyy');
     return formatter.format(dateTime);
   }
-
 }
