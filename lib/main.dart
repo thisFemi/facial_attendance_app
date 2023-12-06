@@ -9,18 +9,15 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'utils/colors.dart';
+import 'views/Settings/error_widget.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    statusBarColor: AppColors.white,
-    systemNavigationBarColor: AppColors.white,
-    statusBarBrightness: Brightness.dark,
-    statusBarIconBrightness: Brightness.dark,
-    systemNavigationBarDividerColor: Colors.white,
-    systemNavigationBarIconBrightness: Brightness.dark,
-  ));
+  SystemChrome.setPreferredOrientations(<DeviceOrientation>[
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp());
 }
 
@@ -30,10 +27,27 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: AppColors.white,
-        systemNavigationBarColor: AppColors.white,
-        statusBarIconBrightness: Brightness.light));
+    ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+      Widget error = Text('......rendering error....: ${errorDetails.summary}');
+      // if (child is Scaffold || child is Navigator) {
+      //   error = Scaffold(
+      //     body: Center(
+      //       child: error,
+      //     ),
+      //   );
+      // }
+      return ErrorScreen(
+        label: "Sorry, Page not found 😔",
+      );
+    };
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: AppColors.white,
+      systemNavigationBarColor: AppColors.white,
+      statusBarBrightness: Brightness.dark,
+      statusBarIconBrightness: Brightness.dark,
+      systemNavigationBarDividerColor: Colors.white,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ));
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(
@@ -48,7 +62,7 @@ class MyApp extends StatelessWidget {
             theme: lightTheme,
             darkTheme: darkTheme,
             debugShowCheckedModeBanner: false,
-            home: WelcomeScreen(),
+            home: const WelcomeScreen(),
           );
         }));
   }
