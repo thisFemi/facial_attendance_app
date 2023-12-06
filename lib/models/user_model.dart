@@ -37,6 +37,7 @@ class User {
       'name': name,
       'userType': userType.toStringValue(), // Convert enum to string
       'email': email,
+      'phoneNumber':phoneNumber,
       'userInfo': userInfo?.toJson(), // Convert userInfo to JSON if not null
     };
   }

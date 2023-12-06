@@ -84,11 +84,18 @@ class _UpcomingAttendanceScreenState extends State<UpcomingAttendanceScreen> {
                           itemBuilder: (ctx, attendanceIndex) {
                             final upcomingAttendance =
                                 upcomingAttendances[attendanceIndex];
-                            bool isStudentEligible = upcomingAttendance.students
+                            final isStudentInList = upcomingAttendance.students
                                 .any((student) =>
+                                    student.studentId == APIs.userInfo.id);
+
+                            // Check if the student is eligible
+                            final isStudentEligible =
+                                upcomingAttendance.students.any((student) =>
                                     student.studentId == APIs.userInfo.id &&
                                     student.isEligible == true);
-                            if (isStudentEligible) {
+
+                            if (!isStudentInList ||
+                                (isStudentInList && isStudentEligible)) {
                               return UpcomingAttendanceCard(
                                 attendance: upcomingAttendance,
                                 course: course,

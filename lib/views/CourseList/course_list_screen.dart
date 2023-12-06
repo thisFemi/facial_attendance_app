@@ -45,7 +45,7 @@ class CourseScreen extends StatelessWidget {
           ],
           title: "Courses"),
       backgroundColor: AppColors.white,
-      body:semester.courses.isEmpty
+      body:semester.courses.isNotEmpty
                     ?  Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(

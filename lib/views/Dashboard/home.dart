@@ -13,6 +13,7 @@ import '../../utils/Common.dart';
 import '../../utils/colors.dart';
 import '../../widgets/notification_icon.dart';
 import '../CourseList/course_registration.dart';
+import '../Settings/Profile/edit_profile_screen.dart';
 import '../Settings/Profile/notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -37,7 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
       todos.add(
         TodoCard(
             onTap: () {
-              print("do registratin");
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => EditProfileScreen(
+                            userInfo: APIs.userInfo,
+                          )));
             },
             title: "Compelete\nRegistation"),
       );
@@ -216,16 +222,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     SizedBox(
                                       child: Text(
-                                        "Total Semesters : ${studentData.getTotalSemesters()}",
+                                        "Total Courses : ${studentData.getTotalCourses()}",
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                             fontSize: 16,
@@ -243,7 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     SizedBox(
                                       child: Text(
-                                        "Total Courses : ${studentData.getTotalCourses()}",
+                                        "Total Attendance : ${studentData.getTotalAttendance()}",
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                             fontSize: 16,

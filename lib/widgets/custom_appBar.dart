@@ -19,15 +19,19 @@ AppBar CustomAppBar(
         style: TextStyle(color: AppColors.black),
       ),
       leading: showArrowBack
-          ? GestureDetector(
-              onTap: () {
+          ? IconButton(
+              onPressed: () {
                 Navigator.pop(context);
               },
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: AppColors.black,
-                size: 16,
-              ),
-            )
+              icon: Container(
+                padding: EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                    color: AppColors.lightGrey, shape: BoxShape.circle),
+                child: Icon(
+                  Icons.arrow_back_ios_new_rounded,
+                  color: AppColors.black,
+                  size: 16,
+                ),
+              ))
           : SizedBox.shrink());
 }

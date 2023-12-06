@@ -88,12 +88,11 @@ class StudentData {
 
   factory StudentData.fromJson(Map<String, dynamic> json) {
     return StudentData(
-      studentId: json['studentId'],
-      matricNumber: json['matricNumber'],
-      studentName: json['studentName'],
-      isPresent: json['isPresent'],
-      isEligible:json['isEligible']
-    );
+        studentId: json['studentId'],
+        matricNumber: json['matricNumber'],
+        studentName: json['studentName'],
+        isPresent: json['isPresent'],
+        isEligible: json['isEligible']);
   }
 
   Map<String, dynamic> toJson() {
@@ -102,7 +101,7 @@ class StudentData {
       'matricNumber': matricNumber,
       'studentName': studentName,
       'isPresent': isPresent,
-      'isEligible':isEligible
+      'isEligible': isEligible
     };
   }
 }
@@ -238,8 +237,25 @@ class UserData {
   }
 
   int getTotalSemesters() {
-    return sessions.length;
+    int totalSemesters = 0;
+    for (var session in sessions) {
+      totalSemesters += session.semesters.length;
+    }
+    return totalSemesters;
   }
+
+ int getTotalAttendance() {
+  int totalAttendance = 0;
+  for (var session in sessions) {
+    for (var semester in session.semesters) {
+      for (var course in semester.courses) {
+        totalAttendance += course.attendanceList.length;
+      }
+    }
+  }
+  return totalAttendance;
+}
+
 
   int getTotalCourses() {
     int totalCourses = 0;
