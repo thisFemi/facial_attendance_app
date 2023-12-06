@@ -33,7 +33,7 @@ class CourseAttendanceScreen extends StatelessWidget {
               height: 10,
             ),
             Expanded(
-              child: ListView.builder(
+              child:attendances.isNotEmpty? ListView.builder(
                   itemCount: attendances.length,
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
@@ -48,7 +48,7 @@ class CourseAttendanceScreen extends StatelessWidget {
                           : false,
                       lectuerName: attendance.lecturerName,
                     );
-                  }),
+                  }):Center(child: Text("No Records found."),),
             ),
           ],
         ),

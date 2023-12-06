@@ -45,7 +45,8 @@ class CourseScreen extends StatelessWidget {
           ],
           title: "Courses"),
       backgroundColor: AppColors.white,
-      body: Padding(
+      body:semester.courses.isEmpty
+                    ?  Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,43 +59,43 @@ class CourseScreen extends StatelessWidget {
               height: 10,
             ),
             Expanded(
-              child: ListView.builder(
-                  itemCount: semester.courses.length,
-                  shrinkWrap: true,
-                  physics: const BouncingScrollPhysics(),
-                  itemBuilder: (ctx, index) {
-                    final course = semester.courses[index];
-                    return CourseCard(
-                        progress: course.calculateAttendancePercentage(),
-                        showPecentage:!isLecturer? true:false,
-                        onTap: () {
-                       
-                          if (isLecturer) {
-                            print("here");
-                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => AttendanceList(
-                                          course: course,
-                                          semester: semester,
-                                          session: session,
-                                        )));
-                          
-                          } else {
-                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (_) => CourseAttendanceScreen(
-                                          attendances: course.attendanceList,
-                                        )));
-                          }
-                        },
-                        title: course.courseId);
-                  }),
-            ),
+                child: ListView.builder(
+                        itemCount: semester.courses.length,
+                        shrinkWrap: true,
+                        physics: const BouncingScrollPhysics(),
+                        itemBuilder: (ctx, index) {
+                          final course = semester.courses[index];
+                          return CourseCard(
+                              progress: course.calculateAttendancePercentage(),
+                              showPecentage: !isLecturer ? true : false,
+                              onTap: () {
+                                if (isLecturer) {
+                                  print("here");
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) => AttendanceList(
+                                                course: course,
+                                                semester: semester,
+                                                session: session,
+                                              )));
+                                } else {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (_) =>
+                                              CourseAttendanceScreen(
+                                                attendances:
+                                                    course.attendanceList,
+                                              )));
+                                }
+                              },
+                              title: course.courseId);
+                        })
+            )
           ],
         ),
-      ),
+      ):   Center(child: Text("No records found"))
     );
   }
 }

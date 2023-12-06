@@ -75,7 +75,6 @@ class StudentAttendanceList extends StatefulWidget {
 }
 
 class _StudentAttendanceListState extends State<StudentAttendanceList> {
-
   List<StudentData> students = [];
   @override
   void initState() {
@@ -117,52 +116,56 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
           showArrowBack: true,
           title: "Records",
           actions: [
-          students.isNotEmpty?  Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 10,
-              ),
-              child: SizedBox(
-                height: 35.0,
-                // width: Screen.deviceSize(context).width * 0.85,
-                child: TextButton(
-                  onPressed: () async {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => PdfPreviewPage(
-                                  course: widget.course,
-                                  semester: widget.semester,
-                                  session: widget.session,
-                                  attendance: widget.attendance,
-                                )));
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppColors.black,
-                  ),
-                  child: Text(
-                    'Export',
-                    style: TextStyle(
-                        color: AppColors.white, fontFamily: 'Raleway-SemiBold'),
-                  ),
-                ),
-              ),
-            ):SizedBox.shrink()
+            students.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    child: SizedBox(
+                      height: 35.0,
+                      // width: Screen.deviceSize(context).width * 0.85,
+                      child: TextButton(
+                        onPressed: () async {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => PdfPreviewPage(
+                                        course: widget.course,
+                                        semester: widget.semester,
+                                        session: widget.session,
+                                        attendance: widget.attendance,
+                                      )));
+                        },
+                        style: TextButton.styleFrom(
+                          backgroundColor: AppColors.black,
+                        ),
+                        child: Text(
+                          'Export',
+                          style: TextStyle(
+                              color: AppColors.white,
+                              fontFamily: 'Raleway-SemiBold'),
+                        ),
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink()
           ]),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Total Students: ${widget.attendance.students == null ? 0 : students.length}",
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            !(widget.attendance.students.length == 0)
-                ? Expanded(
+      body: widget.attendance.students.isNotEmpty
+          ? Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Total Students: ${widget.attendance.students == null ? 0 : students.length}",
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Expanded(
                     child: ListView.builder(
                         itemCount: students.length,
                         shrinkWrap: true,
@@ -263,12 +266,12 @@ class _StudentAttendanceListState extends State<StudentAttendanceList> {
                           );
                         }),
                   )
-                : const Center(
-                    child: Text('No record found!'),
-                  ),
-          ],
-        ),
-      ),
+                ],
+              ),
+            )
+          : const Center(
+              child: Text('No record found!'),
+            ),
     );
   }
 }

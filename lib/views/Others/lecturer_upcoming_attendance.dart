@@ -8,14 +8,15 @@ import '../../utils/colors.dart';
 import '../../widgets/custom_appBar.dart';
 
 class LecturerListOfAttendance extends StatefulWidget {
-   LecturerListOfAttendance({super.key});
+  LecturerListOfAttendance({super.key});
 
   @override
-  State<LecturerListOfAttendance> createState() => _LecturerListOfAttendanceState();
+  State<LecturerListOfAttendance> createState() =>
+      _LecturerListOfAttendanceState();
 }
 
 class _LecturerListOfAttendanceState extends State<LecturerListOfAttendance> {
- List<Session> sessions = [];
+  List<Session> sessions = [];
   @override
   void initState() {
     sessions =
@@ -26,48 +27,52 @@ class _LecturerListOfAttendanceState extends State<LecturerListOfAttendance> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-          centerTitle: true,
-          context: context,
-          showArrowBack: true,
-          actions: [
-            // GestureDetector(
-            //   onTap: () {},
-            //   child: Container(
-            //     margin: EdgeInsets.all(15),
-            //     padding: EdgeInsets.all(5),
-            //     decoration: BoxDecoration(
-            //         color: AppColors.black,
-            //         borderRadius: BorderRadius.circular(5)),
-            //     child: Text(
-            //       'Add',
-            //       style: const TextStyle(
-            //           fontWeight: FontWeight.bold, color: AppColors.lightWhite),
-            //     ),
-            //   ),
-            // ),
-          ],
-          title: "Attendance"),
-      backgroundColor: AppColors.white,
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: ListView.builder(
-            itemCount: sessions.length,
-            shrinkWrap: true,
-            itemBuilder: (ctx, index) {
-              final sesion = sessions[index];
-              return AttendanceSessionCard(session: sesion);
-            }),
-      ),
-    );
+        appBar: CustomAppBar(
+            centerTitle: true,
+            context: context,
+            showArrowBack: true,
+            actions: [
+              // GestureDetector(
+              //   onTap: () {},
+              //   child: Container(
+              //     margin: EdgeInsets.all(15),
+              //     padding: EdgeInsets.all(5),
+              //     decoration: BoxDecoration(
+              //         color: AppColors.black,
+              //         borderRadius: BorderRadius.circular(5)),
+              //     child: Text(
+              //       'Add',
+              //       style: const TextStyle(
+              //           fontWeight: FontWeight.bold, color: AppColors.lightWhite),
+              //     ),
+              //   ),
+              // ),
+            ],
+            title: "Attendance"),
+        backgroundColor: AppColors.white,
+        body: sessions.isNotEmpty
+            ? Padding(
+                padding: EdgeInsets.all(16),
+                child: ListView.builder(
+                    itemCount: sessions.length,
+                    shrinkWrap: true,
+                    itemBuilder: (ctx, index) {
+                      final sesion = sessions[index];
+                      return AttendanceSessionCard(session: sesion);
+                    }),
+              )
+            : Center(
+                child: Text("No reords found"),
+              ));
   }
 }
+
 class AttendanceSessionCard extends StatelessWidget {
-   Session session;
-   AttendanceSessionCard({super.key,required this.session});
+  Session session;
+  AttendanceSessionCard({super.key, required this.session});
 
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Card(
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
@@ -120,6 +125,7 @@ class AttendanceSessionCard extends StatelessWidget {
         ));
   }
 }
+
 class SemesterCard extends StatelessWidget {
   Semester semester;
   Session sessioon;

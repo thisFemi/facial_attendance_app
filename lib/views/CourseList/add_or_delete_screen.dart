@@ -50,7 +50,7 @@ class _AddOrDeleteListScreenState extends State<AddOrDeleteListScreen> {
           ],
           title: "Add Or Delete"),
       backgroundColor: AppColors.white,
-      body: Padding(
+      body:sessions.isNotEmpty? Padding(
         padding: EdgeInsets.all(16),
         child: ListView.builder(
             itemCount: sessions.length,
@@ -58,8 +58,8 @@ class _AddOrDeleteListScreenState extends State<AddOrDeleteListScreen> {
             itemBuilder: (ctx, index) {
               final sesion = sessions[index];
               return AddOrDeleteSessionCard(session: sesion);
-            }),
-      ),
+            })
+      ):Center(child: Text("No Records found."),),
     );
   }
 }

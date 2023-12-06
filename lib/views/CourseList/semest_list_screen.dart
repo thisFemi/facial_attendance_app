@@ -13,29 +13,32 @@ class SemestersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-          centerTitle: true,
-          context: context,
-          showArrowBack: true,
-          title: "Semesters"),
-      backgroundColor: AppColors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            ListView.builder(
-                itemCount: session.semesters.length,
-                shrinkWrap: true,
-                itemBuilder: (ctx, index) {
-                  return SemesterBigCard(
-                    semester: session.semesters[index],
-                    session: session,
-                  );
-                })
-          ],
-        ),
-      ),
-    );
+        appBar: CustomAppBar(
+            centerTitle: true,
+            context: context,
+            showArrowBack: true,
+            title: "Semesters"),
+        backgroundColor: AppColors.white,
+        body: session.semesters.isNotEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    ListView.builder(
+                        itemCount: session.semesters.length,
+                        shrinkWrap: true,
+                        itemBuilder: (ctx, index) {
+                          return SemesterBigCard(
+                            semester: session.semesters[index],
+                            session: session,
+                          );
+                        })
+                  ],
+                ),
+              )
+            : Center(
+                child: Text("No records found"),
+              ));
   }
 }
 

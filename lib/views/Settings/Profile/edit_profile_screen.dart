@@ -48,6 +48,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!_keyForm.currentState!.validate()) {
       return;
     }
+      if (widget.userInfo.userType==UserType.student && APIs.userInfo.userInfo!.imgUrl=="") {
+         Dialogs.showSnackbar(context, 'You need to upload your image');
+      return;
+    }
     Dialogs.showProgressBar(context);
     _keyForm.currentState!.save();
     await APIs.updateUserInfo().then((value) {}).catchError((onError) {
